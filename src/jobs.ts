@@ -4,12 +4,14 @@ import type { SignatureLevel, SignatureType } from './certilia.js';
 export type JobStatus = 'awaiting-signature' | 'embedding' | 'completed' | 'rejected' | 'error';
 
 export interface JobFile {
+  /** Putanja izvornika na strani klijenta (informativno kod uploada). */
   inputPath: string;
   outputPath: string;
   documentName: string;
   verificationCode: string;
   hash?: string;
   visualPlacement?: { pageNumber: number; pageLocation: number; auto: boolean };
+  evidence?: unknown;
 }
 
 export interface Job {
@@ -57,6 +59,8 @@ export function publicJobView(job: Job) {
       output: job.status === 'completed' ? f.outputPath : undefined,
       documentName: f.documentName,
       verificationCode: f.verificationCode,
+      downloadPath: job.status === 'completed' ? `/api/jobs/${job.id}/download/${f.verificationCode}` : undefined,
+      evidence: job.status === 'completed' ? f.evidence : undefined,
     })),
     error: job.error,
     createdAt: job.createdAt,

@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { randomUUID } from 'node:crypto';
 import { readFile, writeFile, mkdir, copyFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { basename, dirname, extname, join, resolve } from 'node:path';
@@ -14,8 +15,10 @@ const runCmd = promisify(execFile);
 const cfg = loadConfig();
 const certilia = new CertiliaClient(cfg);
 const SIGNED_DIR = resolve(process.cwd(), 'data/signed');
-const MAX_BODY = 40 * 1024 * 1024;
-const localApiKey = process.env.LOCAL_API_KEY || undefined;
+const UPLOADS_DIR = resolve(process.cwd(), 'data/uploads');
+// ePotpis payload limit je ~35MB; base64 napuhne ~33% pa je 64MB tijela dovoljno.
+const MAX_BODY = 64 * 1024 * 1024;
+const apiKey = process.env.API_KEY || process.env.LOCAL_API_KEY || undefined;
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((res, rej) => {
@@ -49,7 +52,10 @@ function sendHtml(res: ServerResponse, status: number, title: string, message: s
 }
 
 interface SignRequest {
-  files: string[];
+  /** Lokalne putanje — samo kad CLI i server dijele disk (lokalni način rada). */
+  files?: string[];
+  /** Upload sadržaja — remote način rada (Coolify i sl.). */
+  documents?: { name: string; base64: string }[];
   seal?: boolean;
   mobile?: boolean;
   visual?: boolean;
@@ -61,13 +67,27 @@ interface SignRequest {
 }
 
 async function handleSignRequest(body: SignRequest): Promise<Job> {
-  if (!Array.isArray(body.files) || body.files.length === 0) {
-    throw new Error('Polje "files" mora sadržavati barem jednu putanju do PDF-a.');
-  }
-  const files = body.files.map((f) => resolve(f));
-  for (const f of files) {
-    if (!existsSync(f)) throw new Error(`Datoteka ne postoji: ${f}`);
-    if (extname(f).toLowerCase() !== '.pdf') throw new Error(`Nije PDF: ${f}`);
+  let files: string[];
+  if (Array.isArray(body.documents) && body.documents.length > 0) {
+    const dir = join(UPLOADS_DIR, randomUUID());
+    await mkdir(dir, { recursive: true });
+    files = [];
+    for (const d of body.documents) {
+      const name = basename(d.name || 'dokument.pdf');
+      if (extname(name).toLowerCase() !== '.pdf') throw new Error(`Nije PDF: ${name}`);
+      if (!d.base64) throw new Error(`Prazan sadržaj dokumenta: ${name}`);
+      const path = join(dir, name);
+      await writeFile(path, Buffer.from(d.base64, 'base64'));
+      files.push(path);
+    }
+  } else if (Array.isArray(body.files) && body.files.length > 0) {
+    files = body.files.map((f) => resolve(f));
+    for (const f of files) {
+      if (!existsSync(f)) throw new Error(`Datoteka ne postoji: ${f}`);
+      if (extname(f).toLowerCase() !== '.pdf') throw new Error(`Nije PDF: ${f}`);
+    }
+  } else {
+    throw new Error('Pošalji "documents" (name + base64) ili "files" (lokalne putanje).');
   }
   if (files.length > 1 && !body.mobile) {
     throw new Error('Potpis više dokumenata u jednoj transakciji moguć je isključivo udaljenim certifikatom (koristi --mobile).');
@@ -192,6 +212,7 @@ async function writeEvidence(job: Job, outputPath: string, verificationCode: str
   };
   const evidencePath = outputPath.replace(/\.pdf$/i, '.dokaz.json');
   await writeFile(evidencePath, JSON.stringify(evidence, null, 2));
+  if (file) file.evidence = evidence;
 }
 
 /** 5.2.4 — AKD nakon potpisa POST-a potpisani hash + certifikat na ovaj endpoint. */
@@ -275,17 +296,30 @@ const server = createServer(async (req, res) => {
       sendJson(res, 200, { ok: true, env: cfg.env });
       return;
     }
+    if (path.startsWith('/api/') && apiKey && req.headers['x-api-key'] !== apiKey) {
+      sendJson(res, 401, { error: 'Neispravan ili nedostajući X-Api-Key' });
+      return;
+    }
     if (req.method === 'POST' && path === '/api/sign') {
-      if (localApiKey && req.headers['x-api-key'] !== localApiKey) {
-        sendJson(res, 401, { error: 'Neispravan X-Api-Key' });
-        return;
-      }
       const job = await handleSignRequest(JSON.parse(await readBody(req)) as SignRequest);
       console.log(
         `[job ${job.id}] transakcija kreirana (${job.files.length} dok., ${job.signatureType}/${job.signatureLevel})` +
           (job.mobile ? ' -> čeka potvrdu u Certilia mobilnoj aplikaciji' : ` -> potpis na: ${job.signUrl}`),
       );
       sendJson(res, 201, publicJobView(job));
+      return;
+    }
+    const download = path.match(/^\/api\/jobs\/([^/]+)\/download\/([0-9a-f-]+)$/);
+    if (req.method === 'GET' && download) {
+      const job = getJob(download[1]!);
+      const file = job?.files.find((f) => f.verificationCode === download[2]);
+      if (!job || !file) return sendJson(res, 404, { error: 'Nepoznat job ili dokument' });
+      if (job.status !== 'completed') return sendJson(res, 409, { error: `Job još nije završen (${job.status})` });
+      res.writeHead(200, {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${basename(file.outputPath)}"`,
+      });
+      res.end(await readFile(file.outputPath));
       return;
     }
     if (req.method === 'GET' && path.startsWith('/api/jobs/')) {
@@ -343,5 +377,8 @@ server.listen(cfg.port, () => {
     console.log(`  Base download URL: ${cfg.publicBaseUrl}/esign/docs/`);
   } else {
     console.log('PUBLIC_BASE_URL nije postavljen — pokreni cloudflared tunel i upiši URL u .env (vidi README).');
+  }
+  if (!apiKey) {
+    console.warn('UPOZORENJE: API_KEY nije postavljen — /api/* rute su nezaštićene. Za javni deployment postavi API_KEY.');
   }
 });

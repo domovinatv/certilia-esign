@@ -131,6 +131,47 @@ Rezultat: `dokument-potpisan.pdf` + `dokument-potpisan.dokaz.json` pored origina
 (+ kopija u `data/signed/<verificationCode>.pdf` za dohvat kod verifikacije).
 Provjera potpisa: Adobe Reader ili <https://esign.certilia.com/provjera>.
 
+## Produkcijski deployment (Coolify)
+
+Servis je kontejneriziran (`Dockerfile`, multi-stage, `poppler-utils` uključen) i
+stateless osim `data/` direktorija (potpisani PDF-ovi za download/verifikaciju).
+
+**Coolify (npr. app.domovina.link):**
+1. New Resource → **Application** → ovaj git repo, build pack **Dockerfile**
+2. Port: **3355**; health check: `GET /health`
+3. Domena aplikacije: `https://esign.domovina.ai`
+4. (Opcionalno) Persistent volume: `/app/data` — čuva potpisane PDF-ove preko restarta
+5. Environment varijable:
+
+   | Varijabla | Vrijednost |
+   |---|---|
+   | `CERTILIA_ENV` | `prod` |
+   | `CERTILIA_SYSTEM_ID` | iz developer portala (subscription) |
+   | `CERTILIA_SERVICE_ID` | iz developer portala |
+   | `CERTILIA_DOCUMENT_ID` | iz developer portala |
+   | `CERTILIA_ADES_TOKEN` | gumb "ADES WEB API" na portalu |
+   | `CERTILIA_OIB` | OIB potpisnika (mobileSign) |
+   | `CERTILIA_NAME_SURNAME` | ime za sidrenje vizuala |
+   | `PUBLIC_BASE_URL` | `https://esign.domovina.ai` |
+   | `API_KEY` | **obavezno** — dugačak random string, štiti `/api/*` |
+
+6. **DNS**: `esign.domovina.ai` → isto odredište kao ostale Coolify aplikacije
+   (CNAME/A na Coolify host, ili hostname na postojećem Cloudflare tunelu ako
+   origin ide kroz tunel). Obje domene su ionako u istom Cloudflare accountu.
+7. **Certilia developer portal** (jednokratno): EDIT na eSign subscription →
+   svi URL-ovi na `https://esign.domovina.ai/esign/...` (signed-pdf, success,
+   error, docs/).
+
+**Klijent (s bilo kojeg računala):**
+```bash
+export CERTILIA_ESIGN_SERVER=https://esign.domovina.ai
+export API_KEY=...   # isti kao na serveru
+npm run sign -- dokument.pdf --mobile --visual
+```
+CLI uploada PDF (base64), čeka potvrdu s mobitela i skine potpisani PDF +
+`dokaz.json` natrag pored originala. Lokalne putanje (`files`) rade samo kad
+CLI i server dijele disk; upload (`documents`) radi svugdje.
+
 ## Napomene iz specifikacije
 
 - Hash mora biti 64-znakovni hex (SHA-256) — računa ga AKD-ov PAdES API, ne mi.
