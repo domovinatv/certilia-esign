@@ -6,3 +6,4 @@ data/
 *.log
 .api-key-esign-domovina-ai
 coolify.env
+.local-secrets.env

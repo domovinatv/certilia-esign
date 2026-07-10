@@ -162,6 +162,17 @@ stateless osim `data/` direktorija (potpisani PDF-ovi za download/verifikaciju).
    svi URL-ovi na `https://esign.domovina.ai/esign/...` (signed-pdf, success,
    error, docs/).
 
+**Upravljanje kroz Coolify API (bez klikanja po dashboardu):**
+```bash
+cp .local-secrets.env.example .local-secrets.env   # upiši COOLIFY_API_TOKEN
+cp .env coolify.env                                 # ili ručno složi produkcijske vrijednosti
+./scripts/coolify-configure.sh    # jednokratno: domena, port 3355, healthcheck /health
+./scripts/coolify-env-sync.sh --deploy   # sync SVIH env varijabli iz coolify.env + redeploy
+./scripts/coolify-status.sh       # status aplikacije + javni /health
+```
+`coolify.env` (gitignoriran) je lokalni izvor istine za produkcijske env varijable —
+sync je idempotentan i prijavi drift (ključeve koji postoje samo na Coolifyju).
+
 **Klijent (s bilo kojeg računala):**
 ```bash
 export CERTILIA_ESIGN_SERVER=https://esign.domovina.ai
