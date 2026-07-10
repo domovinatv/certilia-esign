@@ -4,3 +4,5 @@ dist/
 .env
 data/
 *.log
+.api-key-esign-domovina-ai
+coolify.env
