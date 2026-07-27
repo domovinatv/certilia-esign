@@ -8,3 +8,4 @@ data/
 coolify.env
 .local-secrets.env
 templates/certilia-katalog/*.docx
+ugovori/

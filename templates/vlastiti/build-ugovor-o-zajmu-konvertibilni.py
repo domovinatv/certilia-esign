@@ -82,26 +82,65 @@ def title(text):
     return {'docx': docx, 'html': f'<h1>{escape(text)}</h1>'}
 
 
-def signature_table():
-    """Dvostupčani blok potpisa — Certilia vizual potpisa ide ispod imena."""
-    cells = [
-        ('Za Zajmodavca:', '{signer1_organization}', '{signer1_full_name}'),
-        ('Za Zajmoprimca:', '{signer2_organization}', '{signer2_full_name}'),
+def pagebreak():
+    return {'docx': '<w:p><w:r><w:br w:type="page"/></w:r></w:p>',
+            'html': '<div class="pagebreak"></div>'}
+
+
+def visual_space():
+    """Prazan prostor za vizual kvalificiranog elektroničkog potpisa.
+
+    Prilog A ePotpis specifikacije: vizual je 248×122 pt (≈ 87×43 mm), a A4 portrait
+    je podijeljen na 2 stupca × 6 redaka uz marginu 10 mm. Ovdje se rezervira jedna
+    ćelija te mreže ispod svakog potpisnika; src/visual.ts bira slobodnu ćeliju
+    najbližu imenu potpisnika i nikad iznad njega.
+
+    U DOCX-u (dokument koji se stvarno potpisuje) prostor je prazan; u HTML/PDF
+    pregledu se iscrtava iscrtkani okvir da se vidi gdje vizual sjeda.
+    """
+    docx = ('<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/>'
+            '</w:pPr></w:p>' * 6)
+    html = ('<div class="vizual"><span>prostor za vizual kvalificiranog<br>'
+            'elektroničkog potpisa (Certilia)</span></div>')
+    return {'docx': docx, 'html': html}
+
+
+def signature_block():
+    """Blok potpisa: Zajmodavac lijevo, Zajmoprimac desno, Član u trećem redu,
+    a ispod svakog potpisnika rezerviran prostor za Certilia vizual."""
+    parties = [
+        [('Za Zajmodavca:', '{signer1_organization}', '{signer1_full_name}'),
+         ('Za Zajmoprimca:', '{signer2_organization}', '{signer2_full_name}')],
+        [('Za Člana:', '', '{signer3_full_name}'), None],
     ]
-    tc, td = [], []
-    for label, org, name in cells:
-        inner = [p(label, bold=True, align='left', after=60),
-                 p(org, align='left', after=360),
-                 p('_______________________________', align='left', after=60),
-                 p(name, align='left', after=0)]
-        tc.append('<w:tc><w:tcPr><w:tcW w:w="4600" w:type="dxa"/></w:tcPr>'
-                  + ''.join(b['docx'] for b in inner) + '</w:tc>')
-        td.append('<td>' + ''.join(b['html'] for b in inner) + '</td>')
+    rows_docx, rows_html = [], []
+    for row in parties:
+        tc, td = [], []
+        for cell in row:
+            if cell is None:
+                tc.append('<w:tc><w:tcPr><w:tcW w:w="4600" w:type="dxa"/></w:tcPr>'
+                          + p('', after=0)['docx'] + '</w:tc>')
+                td.append('<td></td>')
+                continue
+            label, org, name = cell
+            inner = [p(label, bold=True, align='left', after=60)]
+            if org:
+                inner.append(p(org, align='left', after=300))
+            else:
+                inner.append(p('', align='left', after=300))
+            inner += [p('_______________________________', align='left', after=60),
+                      p(name, align='left', after=120),
+                      visual_space()]
+            tc.append('<w:tc><w:tcPr><w:tcW w:w="4600" w:type="dxa"/></w:tcPr>'
+                      + ''.join(b['docx'] for b in inner) + '</w:tc>')
+            td.append('<td>' + ''.join(b['html'] for b in inner) + '</td>')
+        rows_docx.append(f'<w:tr>{"".join(tc)}</w:tr>')
+        rows_html.append(f'<tr>{"".join(td)}</tr>')
     docx = ('<w:tbl><w:tblPr><w:tblW w:w="9200" w:type="dxa"/>'
             '<w:tblLayout w:type="fixed"/></w:tblPr>'
             '<w:tblGrid><w:gridCol w:w="4600"/><w:gridCol w:w="4600"/></w:tblGrid>'
-            f'<w:tr>{"".join(tc)}</w:tr></w:tbl>')
-    return {'docx': docx, 'html': f'<table class="potpisi"><tr>{"".join(td)}</tr></table>'}
+            + ''.join(rows_docx) + '</w:tbl>')
+    return {'docx': docx, 'html': f'<table class="potpisi">{"".join(rows_html)}</table>'}
 
 
 # --- Tekst ugovora -----------------------------------------------------------
@@ -318,11 +357,10 @@ A(p('(4) Ovaj Ugovor stupa na snagu danom kada ga potpišu sve Ugovorne strane.'
 A(p('(5) Ugovorne strane suglasno utvrđuju da su ovaj Ugovor pročitale, razumjele i da on odgovara '
     'njihovoj pravoj volji, u znak čega ga potpisuju.', after=400))
 
-A(signature_table())
-A(p('', after=240))
-A(p('Za Člana:', bold=True, align='left', after=360))
-A(p('_______________________________', align='left', after=60))
-A(p('{signer3_full_name}', align='left', after=0))
+A(pagebreak())
+A(p('POTPISI UGOVORNIH STRANA', bold=True, align='center', after=60, cls='naslov', keep=True))
+A(p('U {mjesto_sklapanja}, dana {datum_sklapanja}', align='center', after=240, keep=True))
+A(signature_block())
 
 # --- Sastavljanje DOCX-a -----------------------------------------------------
 
@@ -396,6 +434,10 @@ p.clanak { margin-bottom: 6pt; }
 p.naslov, p.clanak { break-after: avoid; page-break-after: avoid; }
 table.potpisi { width: 100%; margin-top: 8pt; }
 table.potpisi td { vertical-align: top; width: 50%; padding-right: 14pt; }
+.pagebreak { break-before: page; page-break-before: always; height: 0; }
+.vizual { height: 43mm; margin: 4pt 14pt 10pt 0; border: 1px dashed #bbb; border-radius: 2px;
+          display: flex; align-items: center; justify-content: center; text-align: center;
+          color: #999; font-size: 8pt; font-style: italic; }
 </style></head><body>
 ''' + ''.join(b['html'] for b in BODY) + '\n</body></html>\n'
 

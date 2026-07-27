@@ -131,6 +131,24 @@ Rezultat: `dokument-potpisan.pdf` + `dokument-potpisan.dokaz.json` pored origina
 (+ kopija u `data/signed/<verificationCode>.pdf` za dohvat kod verifikacije).
 Provjera potpisa: Adobe Reader ili <https://esign.certilia.com/provjera>.
 
+## Predlošci ugovora
+
+`templates/` sadrži predloške koji se popune podacima pa potpišu gornjim tokom —
+offline kopiju AKD-ovog kataloga (referenca) i vlastite predloške s generatorom.
+Detalji: [`templates/README.md`](templates/README.md).
+
+```bash
+# izrada primjerka ugovora iz predloška (izlaz ide u gitignoran ugovori/)
+cp templates/vlastiti/ugovor-podaci.primjer.json ugovori/zajam-2026-08.json
+$EDITOR ugovori/zajam-2026-08.json
+python3 templates/vlastiti/fill-ugovor.py ugovori/zajam-2026-08.json
+npm run sign -- ugovori/zajam-2026-08.pdf --mobile --visual
+```
+
+Za vođeni postupak (prikupljanje i provjera podataka, kontrolni izračun) u praznom
+chatu: *„Pročitaj templates/vlastiti/HANDOFF.md i vodi me kroz izradu pravog
+primjerka ugovora o zajmu s konverzijom."*
+
 ## Produkcijski deployment (Coolify)
 
 Servis je kontejneriziran (`Dockerfile`, multi-stage, `poppler-utils` uključen) i

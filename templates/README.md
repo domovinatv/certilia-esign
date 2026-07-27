@@ -30,12 +30,32 @@ doc.certilia.com).
 | `ugovor-o-zajmu-konvertibilni.fields.json` | opis i primjer vrijednosti za svako polje |
 | `ugovor-o-zajmu-konvertibilni.pdf` | PDF za pregled (placeholderi vidljivi) |
 | `render-pdf.sh` | HTML → PDF (headless Chrome) |
+| `fill-ugovor.py` | popunjava predložak stvarnim podacima → DOCX + HTML + PDF + kontrolni izračun |
+| `ugovor-podaci.primjer.json` | predložak ulaznog JSON-a sa svih 38 polja |
+| `HANDOFF.md` | vođeni postupak izrade pravog primjerka (oneliner za prazan chat) |
 | `PRAVNA-ANALIZA.md` | provjera po ZOO/ZTD/ZPD s referencama na članke i NN |
+
+Izrada pravog primjerka — izlaz ide u **gitignoran `ugovori/`** jer sadrži stvarne podatke firmi:
+
+```bash
+cp templates/vlastiti/ugovor-podaci.primjer.json ugovori/zajam-2026-08.json
+$EDITOR ugovori/zajam-2026-08.json
+python3 templates/vlastiti/fill-ugovor.py ugovori/zajam-2026-08.json
+```
+
+Skripta odbija generirati dokument ako neko polje nedostaje i uz dokument ispisuje kontrolni izračun
+konverzije (nominala novog udjela, stvarni postotak, agio), s upozorenjem kad zaokruživanje na puni
+euro odmakne stvarni postotak više od 5 % od ciljanog.
 
 **Format** prati uobičajeni raspored hrvatskih ugovora i Narodnih novina: Times New Roman 12 pt,
 naslov članka verzalom i centriran, ispod njega centrirano „Članak N.", tijelo obostrano poravnato,
 margine 25 mm. Naslovi imaju `keepNext` (DOCX) odnosno `break-after: avoid` (HTML) da ne ostanu sami
 na dnu stranice.
+
+**Potpisna stranica** je zasebna (page break) i ispod svakog potpisnika ima rezerviranu praznu ćeliju
+za vizual kvalificiranog potpisa (≈ 87 × 43 mm, jedna ćelija Certilia mreže iz Priloga A). U DOCX-u
+je taj prostor prazan, u HTML/PDF pregledu se iscrtava iscrtkani okvir da se vidi gdje vizual sjeda.
+`src/visual.ts` bira slobodnu ćeliju najbližu imenu potpisnika i nikad iznad njega.
 
 Promjena teksta ugovora ide **u generatoru**, ne u DOCX-u:
 
@@ -66,7 +86,8 @@ python3 templates/vlastiti/build-ugovor-o-zajmu-konvertibilni.py   # regenerira 
 
 - [ ] Upisati stvarni **temeljni kapital firme A** u `signer2_temeljni_kapital` — o njemu ovisi izračun
       nominale novog poslovnog udjela (vidi tablicu zaokruživanja u `PRAVNA-ANALIZA.md`).
-- [ ] Popuniti podatke firmi A i B te direktora koji potpisuju, generirati primjerak za potpis.
+- [ ] Popuniti podatke firmi A i B te direktora koji potpisuju, generirati primjerak za potpis —
+      vođeni postupak je u `vlastiti/HANDOFF.md`.
 - [ ] Predložak dati bilježniku/odvjetniku na pregled prije potpisa (čl. 6.–10.).
 - [ ] `src/generate.ts`: docxtemplater (delimiteri `{` `}`) → LibreOffice → PDF → `npm run sign --
       --mobile --visual`, da je put od popunjenih polja do potpisanog PDF-a jedna naredba.
