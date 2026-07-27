@@ -6,6 +6,8 @@ predlošci koji se generiraju iz skripte i potpisuju kroz `npm run sign`.
 ```
 templates/
 ├── certilia-katalog/   12 DOCX-eva iz Certilia Doc kataloga + catalog.json (metapodaci, polja)
+├── yc-safe/            YC standardni dokumenti (referenca) + usporedba sa SAFE-om
+├── tokenizacija/       pravna analiza tokenizacije d.o.o. (DE/AT/HR) i EU Inc. 28. režima
 └── vlastiti/           vlastiti predlošci — generator, DOCX, PDF pregled, pravna analiza
 ```
 
@@ -25,7 +27,7 @@ doc.certilia.com).
 | datoteka | što je |
 |---|---|
 | `build-ugovor-o-zajmu-konvertibilni.py` | generator (bez ovisnosti); isti sadržaj emitira u DOCX i HTML |
-| `ugovor-o-zajmu-konvertibilni.docx` | predložak za potpisivanje, 15 članaka, 38 polja `{snake_case}` |
+| `ugovor-o-zajmu-konvertibilni.docx` | predložak za potpisivanje, 17 članaka, 38 polja `{snake_case}` |
 | `ugovor-o-zajmu-konvertibilni.html` | isti tekst u HTML-u — izvor za PDF pregled |
 | `ugovor-o-zajmu-konvertibilni.fields.json` | opis i primjer vrijednosti za svako polje |
 | `ugovor-o-zajmu-konvertibilni.pdf` | PDF za pregled (placeholderi vidljivi) |
@@ -33,6 +35,7 @@ doc.certilia.com).
 | `fill-ugovor.py` | popunjava predložak stvarnim podacima → DOCX + HTML + PDF + kontrolni izračun |
 | `ugovor-podaci.primjer.json` | predložak ulaznog JSON-a sa svih 38 polja |
 | `HANDOFF.md` | vođeni postupak izrade pravog primjerka (oneliner za prazan chat) |
+| `HANDOFF-POTPISNA-STRANICA.md` | zaseban zadatak: dorada izgleda potpisne stranice i vizuala |
 | `PRAVNA-ANALIZA.md` | provjera po ZOO/ZTD/ZPD s referencama na članke i NN |
 
 Izrada pravog primjerka — izlaz ide u **gitignoran `ugovori/`** jer sadrži stvarne podatke firmi:
@@ -100,10 +103,11 @@ python3 templates/vlastiti/build-ugovor-o-zajmu-konvertibilni.py   # regenerira 
 
 ## Sljedeći koraci
 
-- [ ] Upisati stvarni **temeljni kapital firme A** u `signer2_temeljni_kapital` — o njemu ovisi izračun
-      nominale novog poslovnog udjela (vidi tablicu zaokruživanja u `PRAVNA-ANALIZA.md`).
-- [ ] Popuniti podatke firmi A i B te direktora koji potpisuju, generirati primjerak za potpis —
-      vođeni postupak je u `vlastiti/HANDOFF.md`.
-- [ ] Predložak dati bilježniku/odvjetniku na pregled prije potpisa (čl. 6.–11.).
+- [x] Prvi stvarni primjerak izrađen i potpisan (27.07.2026.) — postupak je u `vlastiti/HANDOFF.md`.
+- [ ] Predložak dati bilježniku/odvjetniku na pregled (čl. 6.–11.) — konverzija ionako ide preko
+      bilježnika, pa je to prilika.
+- [ ] Doraditi izgled potpisne stranice — zaseban zadatak, `vlastiti/HANDOFF-POTPISNA-STRANICA.md`.
+- [ ] Razmotriti dopune po uzoru na SAFE koje su u RH izvedive: post-money formula, MFN klauzula,
+      pro rata pravo (vidi `../yc-safe/USPOREDBA-SAFE-vs-HR.md`).
 - [ ] `src/generate.ts`: docxtemplater (delimiteri `{` `}`) → LibreOffice → PDF → `npm run sign --
       --mobile --visual`, da je put od popunjenih polja do potpisanog PDF-a jedna naredba.
