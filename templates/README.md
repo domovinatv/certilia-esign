@@ -35,7 +35,8 @@ doc.certilia.com).
 | `fill-ugovor.py` | popunjava predložak stvarnim podacima → DOCX + HTML + PDF + kontrolni izračun |
 | `ugovor-podaci.primjer.json` | predložak ulaznog JSON-a sa svih 38 polja |
 | `HANDOFF.md` | vođeni postupak izrade pravog primjerka (oneliner za prazan chat) |
-| `HANDOFF-POTPISNA-STRANICA.md` | zaseban zadatak: dorada izgleda potpisne stranice i vizuala |
+| `provjeri-potpisnu-stranicu.py` | provjera da rezervirane ćelije mreže vizuala ostaju prazne |
+| `HANDOFF-POTPISNA-STRANICA.md` | zapis o doradi potpisne stranice (riješeno 27.07.2026.) |
 | `PRAVNA-ANALIZA.md` | provjera po ZOO/ZTD/ZPD s referencama na članke i NN |
 
 Izrada pravog primjerka — izlaz ide u **gitignoran `ugovori/`** jer sadrži stvarne podatke firmi:
@@ -55,26 +56,43 @@ naslov članka verzalom i centriran, ispod njega centrirano „Članak N.", tije
 margine 25 mm. Naslovi imaju `keepNext` (DOCX) odnosno `break-after: avoid` (HTML) da ne ostanu sami
 na dnu stranice.
 
-**Potpisna stranica** je zasebna (page break) i ispod svakog potpisnika ima rezerviranu praznu ćeliju
-za vizual kvalificiranog potpisa (248 × 122 pt ≈ 87 × 43 mm, jedna ćelija Certilia mreže iz Priloga A).
-`src/visual.ts` bira slobodnu ćeliju najbližu imenu potpisnika i nikad iznad njega.
+### Potpisna stranica
 
-Dvije stvari koje su naučene na prvom stvarnom potpisivanju (27.07.2026.) i zbog kojih je HTML
-potpisne stranice složen **apsolutno**, a ne tabličnim tokom:
+Potpisna stranica je zasebna i složena je **na mreži vizuala iz Priloga A**: svaki potpisnik je jedna
+ćelija te mreže (248 × 122 pt ≈ 87 × 43 mm) koja ostaje prazna da vizual kvalificiranog potpisa sjedne
+u nju. Iznad ćelije stoji uloga i tvrtka, ispod nje crta i ime potpisnika — dakle klasično potpisno
+mjesto, samo što je „prostor za rukopis" ovdje točno ćelija mreže. Raspored: **5 = Zajmodavac,
+6 = Zajmoprimac, 9 = Član**, a 10 ostaje slobodna kao pričuva. `src/visual.ts` bira slobodnu ćeliju
+najbližu imenu potpisnika i nikad iznad njega.
 
-- **Trake moraju ležati točno na retku mreže.** Mreža ima marginu 10 mm od ruba stranice i fiksne
-  visine redaka; tekst ima marginu 25 mm. Ako se rezervirani prostor slaže po toku teksta, nikad se
-  ne poklopi s ćelijom i ePotpis smjesti vizual preko imena potpisnika. Koordinate su u generatoru
-  (`GRID_COL`, `GRID_ROW_3`, `GRID_ROW_5`); raspored je ćelija 5 = Zajmodavac, 6 = Zajmoprimac,
-  9 = Član.
-- **Okvir trake mora biti svjetliji od praga tinte.** `src/visual.ts` ćeliju smatra zauzetom iznad
-  0,4 % tamnih piksela, a tamnim smatra sve ispod 225. Iscrtkani okvir `#bbb` s natpisom „prostor za
-  vizual" padao je u tu granicu, pa je automatika **izbjegavala upravo rezervirane ćelije**. Sada je
-  okvir `#ececec` bez natpisa i mjerena tinta je 0,0000 — automatski odabir i eksplicitni
-  `--location` daju isti rezultat.
+Tri zamke koje su ovdje riješene i koje treba znati prije bilo kakve izmjene rasporeda:
 
-Provjera nakon svake izmjene rasporeda: `pdftotext -bbox` nad potpisnom stranicom i test da nijedna
-riječ ne upada u pravokutnike ćelija 5, 6 i 9.
+- **Mreža ima marginu 10 mm, tekst 25 mm.** Ako se rezervirani prostor slaže po toku teksta, nikad se
+  ne poklopi s ćelijom i ePotpis smjesti vizual preko imena potpisnika (tako je ispalo na prvom
+  stvarnom potpisivanju 27.07.2026.). Zato potpisna stranica ima **vlastitu marginu od 10 mm**
+  (`@page potpisna` + `page: potpisna`), pa se ćelija i stupac teksta poklapaju do na desetinku točke.
+- **Preljev preko margine skalira cijeli dokument.** Dok je raspored pokušavao izaći iz margine od
+  25 mm negativnim `left`, Chrome je pri ispisu smanjio **sve stranice** faktorom ≈ 0,9 (shrink to
+  fit) — pa se ništa nije poklapalo s mrežom, a k tome je i sadržaj bio odrezan na rubu margine.
+  Isto vrijedi za zadanu marginu `body` od 8 px: pomicala je cijeli raspored za 6 pt, pa je sada
+  `html, body { margin: 0 }`.
+- **Sve tamnije od 225 računa se kao sadržaj.** `src/visual.ts` ćeliju smatra zauzetom iznad 0,4 %
+  tamnih piksela u pravokutniku ćelije **proširenom za 4 pt**. Iscrtkani okvir `#bbb` s natpisom
+  „prostor za vizual" padao je u tu granicu, pa je automatika izbjegavala upravo rezervirane ćelije.
+  Sada u ćeliji nema ničega, a crta ispod imena namjerno je 7 pt ispod ćelije — izvan mjerenog pojasa,
+  pa smije biti tamna.
+
+Provjera nakon svake izmjene rasporeda (ponavlja algoritam iz `src/visual.ts`, bez potpisivanja):
+
+```bash
+python3 templates/vlastiti/build-ugovor-o-zajmu-konvertibilni.py --mreza  # okviri ćelija radi pregleda
+./templates/vlastiti/render-pdf.sh
+python3 templates/vlastiti/provjeri-potpisnu-stranicu.py templates/vlastiti/ugovor-o-zajmu-konvertibilni.pdf
+```
+
+Skripta ispisuje tintu po ćeliji, popis slobodnih ćelija i riječi koje upadaju u rezervirane ćelije;
+izlazni kod je 1 ako 5, 6 ili 9 nisu čiste. Zadnji korak je pogledati stranicu očima
+(`pdftoppm -f 9 -l 9 -r 80 -png`).
 
 Promjena teksta ugovora ide **u generatoru**, ne u DOCX-u:
 
@@ -106,7 +124,8 @@ python3 templates/vlastiti/build-ugovor-o-zajmu-konvertibilni.py   # regenerira 
 - [x] Prvi stvarni primjerak izrađen i potpisan (27.07.2026.) — postupak je u `vlastiti/HANDOFF.md`.
 - [ ] Predložak dati bilježniku/odvjetniku na pregled (čl. 6.–11.) — konverzija ionako ide preko
       bilježnika, pa je to prilika.
-- [ ] Doraditi izgled potpisne stranice — zaseban zadatak, `vlastiti/HANDOFF-POTPISNA-STRANICA.md`.
+- [x] Doraditi izgled potpisne stranice (27.07.2026.) — vlastita margina od 10 mm, prostor za vizual
+      iznad crte s imenom, provjera skriptom `vlastiti/provjeri-potpisnu-stranicu.py`.
 - [ ] Razmotriti dopune po uzoru na SAFE koje su u RH izvedive: post-money formula, MFN klauzula,
       pro rata pravo (vidi `../yc-safe/USPOREDBA-SAFE-vs-HR.md`).
 - [ ] `src/generate.ts`: docxtemplater (delimiteri `{` `}`) → LibreOffice → PDF → `npm run sign --

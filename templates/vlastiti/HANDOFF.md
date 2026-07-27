@@ -99,9 +99,14 @@ export CERTILIA_ESIGN_SERVER=https://esign.domovina.ai API_KEY=$(cat .api-key-es
 npm run sign -- ugovori/<naziv>.pdf --mobile --visual      # potvrda dodirom u Certilia aplikaciji
 ```
 
-Zadnja stranica ima rezervirana mjesta za vizual kvalificiranog potpisa ispod svakog potpisnika;
-`src/visual.ts` bira slobodnu ćeliju mreže najbližu imenu potpisnika i nikad iznad njega. Potpisuju
-tri strane — zajmodavac, zajmoprimac i član društva; svatko svojim potpisom nad istim PDF-om.
+Zadnja stranica ima rezervirana mjesta za vizual kvalificiranog potpisa iznad crte s imenom svakog
+potpisnika; `src/visual.ts` bira slobodnu ćeliju mreže najbližu imenu potpisnika i nikad iznad njega.
+Potpisuju tri strane — zajmodavac, zajmoprimac i član društva; svatko svojim potpisom nad istim PDF-om.
+Prije potpisivanja se isplati provjeriti da su ćelije stvarno prazne:
+
+```bash
+python3 templates/vlastiti/provjeri-potpisnu-stranicu.py ugovori/<naziv>.pdf
+```
 
 ### 6. Podsjeti korisnika
 

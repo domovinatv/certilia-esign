@@ -1,105 +1,80 @@
-# Handoff: dorada izgleda potpisne stranice i vizuala potpisa
+# Potpisna stranica — što je napravljeno i zašto (riješeno 27.07.2026.)
 
-## Oneliner za prazan chat
+Zadatak iz ovog handoffa je odrađen; dokument je zadržan jer objašnjava **zašto** je raspored ovakav.
+Sažetak je u `templates/README.md`, odjeljak „Potpisna stranica".
+
+## Kako izgleda sada
+
+Svaki potpisnik je jedna ćelija mreže vizuala (248 × 122 pt), a oko nje klasično potpisno mjesto:
 
 ```
-Pročitaj templates/vlastiti/HANDOFF-POTPISNA-STRANICA.md i doradi izgled potpisne stranice ugovora.
+Za Zajmodavca:
+FIRMA B d.o.o.
+                          ← ćelija 5/6/9: ostaje prazna, tu sjeda vizual
+──────────────────────────
+Ivan Ivić
+kvalificirani elektronički potpis
 ```
 
-Sve što treba je u ovom dokumentu.
+Zaglavlje (uloga + tvrtka) sidreno je na **donji** rub, podnožje (crta + ime) na **gornji**, pa dugačak
+naziv tvrtke ili ime raste od ćelije prema van i nikad ne uđe u rezervirani prostor. Raspored:
+ćelija 5 = Zajmodavac, 6 = Zajmoprimac, 9 = Član; 10 ostaje slobodna kao pričuva za automatski odabir.
 
----
+## Što je bio pravi uzrok neurednog izgleda
 
-## Zadatak
+Sve tri stavke iz starog popisa nedostataka („lijevi stupac se ne može poravnati", „vertikalni odmak
+~6 pt", „neujednačeni razmaci") imale su isti korijen:
 
-Potpisna stranica **funkcionira** — vizuali sjedaju u prazno i ne prekrivaju tekst — ali izgleda
-neuredno. Cilj je da izgleda kao dokument, ne kao mreža s nalijepljenim karticama. Tekst ugovora
-(članci 1.–17.) **ne dirati**; ovo je isključivo raspored zadnje stranice.
+1. **Chrome pri ispisu smanjuje cijeli dokument ako sadržaj prelazi marginu.** Stari raspored izlazio
+   je iz margine od 25 mm negativnim `left`, pa je Chrome sve stranice skalirao faktorom **≈ 0,9**
+   (mjereno: tekst je umjesto na 70,9 pt počinjao na 75,9 pt) — i k tome odrezao dio koji viri preko
+   margine. Zato ništa nije sjedalo na mrežu.
+2. **`body` ima zadanu marginu 8 px = 6 pt.** To je bio onaj „vertikalni odmak od ~6 pt".
 
-## Kontekst: kako sustav radi
+Rješenje: potpisna stranica dobila je **vlastitu marginu od 10 mm** — istu koju ima mreža vizuala —
+kroz imenovanu stranicu:
 
-Potpisuje se **PDF**, a PDF nastaje iz HTML-a koji emitira generator. Dakle mijenja se generator, nikad
-DOCX ili PDF ručno:
+```css
+@page potpisna { size: A4; margin: 10mm; }
+.sigpage { page: potpisna; }
+html, body { margin: 0; }
+```
+
+Time je mreža ujedno i raspored stranice: ćelija = stupac teksta, bez ijednog preljeva. Koordinate
+ćelija više se ne hardkodiraju nego ih računa `grid_cell()` (prijepis `GetVisualGrid` iz Priloga A,
+isti algoritam kao `visualGrid()` u `src/visual.ts`).
+
+Nuspojava koju treba znati: bez skaliranja od 0,9 tekst je u punoj veličini, pa ugovor ima **9 stranica**
+umjesto dotadašnjih 8. Potpisna stranica je i dalje zadnja.
+
+## Zamke koje i dalje vrijede
+
+- **Ne slagati rezervirani prostor po toku teksta** — mreža ima marginu 10 mm, tekst 25 mm; poklopiti
+  se mogu samo ako se stranici promijeni margina.
+- **Prag tinte:** `src/visual.ts` ćeliju smatra zauzetom iznad 0,4 % piksela tamnijih od 225, i to u
+  pravokutniku ćelije **proširenom za 4 pt**. U ćeliji zato nema ničega, a crta ispod imena je 7 pt
+  ispod ćelije — izvan mjerenog pojasa, pa smije biti tamna (`0.75pt solid #333`).
+- **Ne dirati tekst ugovora ni numeraciju članaka** (pravna analiza referira na brojeve članaka), broj
+  polja (38) ni imena placeholdera.
+
+## Provjera nakon svake izmjene (bez trošenja potpisa)
 
 ```bash
-python3 templates/vlastiti/build-ugovor-o-zajmu-konvertibilni.py   # DOCX + HTML + fields.json
-./templates/vlastiti/render-pdf.sh                                 # PDF pregled
-python3 templates/vlastiti/fill-ugovor.py ugovori/<naziv>.json     # primjerak s podacima
+python3 templates/vlastiti/build-ugovor-o-zajmu-konvertibilni.py   # dodaj --mreza za okvire ćelija
+./templates/vlastiti/render-pdf.sh
+python3 templates/vlastiti/provjeri-potpisnu-stranicu.py templates/vlastiti/ugovor-o-zajmu-konvertibilni.pdf
+pdftoppm -f 9 -l 9 -r 80 -png templates/vlastiti/ugovor-o-zajmu-konvertibilni.pdf /tmp/sig && open /tmp/sig-*.png
 ```
 
-Potpisna stranica složena je u `signature_block()` u
-`templates/vlastiti/build-ugovor-o-zajmu-konvertibilni.py`. DOCX grana zadržava tablični raspored (DOCX
-se ne potpisuje), HTML grana slaže blokove **apsolutno**.
+`provjeri-potpisnu-stranicu.py` ponavlja algoritam iz `src/visual.ts`: ispisuje tintu po ćeliji, popis
+slobodnih ćelija i riječi koje upadaju u rezervirane ćelije. Trenutačno stanje: ćelije 5, 6 i 9 imaju
+tintu 0,0000, a slobodne su 5, 6, 9, 10 i 12.
 
-### Mreža Priloga A — zašto je raspored apsolutan
-
-ePotpis vizual je **248 × 122 pt**, a stranicu dijeli na mrežu s marginom **10 mm** od ruba: A4 portrait
-daje 2 stupca × 6 redaka, `pageLocation` 1–12, red po red od vrha (11 = dolje lijevo, 12 = dolje desno).
-Koordinate ćelija na A4 (595 × 842 pt), y od vrha:
-
-| ćelija | x | y |
-|---|---|---|
-| 5 (lijevo) / 6 (desno) | 28,3–276,3 / 318,6–566,6 | 293,6–415,6 |
-| 7 / 8 | isto | 426,3–548,3 |
-| 9 / 10 | isto | 558,9–680,9 |
-
-Trenutni raspored: **ćelija 5 = Zajmodavac, 6 = Zajmoprimac, 9 = Član**. Konstante su u generatoru
-(`GRID_COL`, `GRID_ROW_3`, `GRID_ROW_5`, `PAGE_MARGIN_PT`, `_rel()`).
-
-### Dvije zamke koje su već skupo naučene (27.07.2026.)
-
-1. **Slaganje po tekstualnom toku ne radi.** Tekst ima marginu 25 mm, mreža 10 mm — nikad se ne poklope
-   i ePotpis smjesti vizual **preko imena potpisnika**. Zato je HTML apsolutno pozicioniran.
-2. **Okvir-podsjetnik ne smije biti tamniji od praga tinte.** `src/visual.ts` ćeliju smatra zauzetom
-   iznad **0,4 %** piksela tamnijih od **225**. Iscrtkani okvir `#bbb` s natpisom „prostor za vizual"
-   padao je u tu granicu, pa je automatika izbjegavala **upravo rezervirane ćelije**. Sada je okvir
-   `#ececec` bez natpisa i izmjerena tinta je 0,0000.
-
-## Poznati nedostaci koje treba riješiti
-
-- **Lijevi stupac se ne može poravnati vodoravno.** Mreža počinje na x = 28,3 pt, a sadržaj stranice
-  tek na 70,9 pt (margina 25 mm), pa okvir u lijevom stupcu ne doseže do stvarnog ruba ćelije i vizual
-  „strši" ulijevo u odnosu na okvir. Mogućnosti: smanjiti marginu samo na potpisnoj stranici (npr.
-  `@page` pravilo ili zaseban HTML kontejner s negativnim marginama), ili priznati odmak i okvir
-  namjerno crtati samo kao podnožnu crtu umjesto pravokutnika.
-- **Vertikalni odmak od ~6 pt** između zadanog `top` i stvarno renderiranog položaja (kontejner ne
-  počinje točno na vrhu sadržaja). Izmjeriti i kompenzirati.
-- **Razmaci su neujednačeni:** ime → traka je 70,6 pt gore i 43,1 pt dolje.
-- **Estetika:** razmotriti tanku sivu crtu iznad svake trake umjesto pravokutnika, dosljedan razmak,
-  i po mogućnosti sva tri potpisnika u istom vizualnom ritmu (sada su dva gore, jedan dolje).
-
-## Obavezna provjera nakon svake izmjene
-
-```bash
-# 1. nijedna riječ ne smije upadati u pravokutnike ćelija 5, 6 i 9
-pdftotext -f <zadnja> -l <zadnja> -bbox ugovori/<naziv>.pdf - | grep '<word'
-# 2. tinta u tim ćelijama mora biti <= 0,004 (algoritam je u src/visual.ts)
-pdftoppm -f <zadnja> -l <zadnja> -r 50 -gray ugovori/<naziv>.pdf
-# 3. vizualna provjera
-pdftoppm -f <zadnja> -l <zadnja> -r 80 -png ugovori/<naziv>.pdf /tmp/sig && open /tmp/sig-*.png
-```
-
-Skripte za 1. i 2. lako se napišu u Pythonu bez ovisnosti — mreža se računa po algoritmu iz
-`visualGrid()` u `src/visual.ts`.
-
-## Testiranje bez trošenja potpisa
-
-Svako potpisivanje traži potvrdu dodirom u Certilia aplikaciji, pa **ne potpisuj radi provjere
-rasporeda**. Render + gornje tri provjere dovoljni su. Tek kad raspored zadovolji:
+Potpisivanje radi provjere rasporeda nije potrebno — svako traži potvrdu dodirom u Certilia aplikaciji.
+Kad raspored zadovolji:
 
 ```bash
 export CERTILIA_ESIGN_SERVER=https://esign.domovina.ai API_KEY=$(cat .api-key-esign-domovina-ai)
-npm run sign -- ugovori/<naziv>.pdf --mobile --visual --page <zadnja> --location 6
-npm run sign -- ugovori/<naziv>-potpisan.pdf --mobile --visual --page <zadnja> --location 9
+npm run sign -- ugovori/<naziv>.pdf --mobile --visual --page 9 --location 6
+npm run sign -- ugovori/<naziv>-potpisan.pdf --mobile --visual --page 9 --location 9
 ```
-
-`--page`/`--location` zaobilaze automatiku; bez njih server sam bira ćeliju po imenu potpisnika.
-
-## Što ne dirati
-
-- Tekst ugovora i numeraciju članaka (pravna analiza referira na brojeve članaka).
-- Broj polja (38) i imena placeholdera — postojeći primjerci u `ugovori/` moraju i dalje raditi.
-- Već potpisane PDF-ove u `ugovori/` i `ugovori/arhiva-stare-verzije/`.
-
-Kontekst zašto stranica izgleda ovako i koje su odluke već donesene: `templates/README.md`, odjeljak o
-potpisnoj stranici.

@@ -10,12 +10,19 @@ Pravna podloga i rizici: vidi PRAVNA-ANALIZA.md u istom direktoriju.
 """
 import json
 import os
+import sys
 import zipfile
 from xml.sax.saxutils import escape
 
 OUT_DOCX = os.path.join(os.path.dirname(__file__), 'ugovor-o-zajmu-konvertibilni.docx')
 OUT_JSON = os.path.join(os.path.dirname(__file__), 'ugovor-o-zajmu-konvertibilni.fields.json')
 OUT_HTML = os.path.join(os.path.dirname(__file__), 'ugovor-o-zajmu-konvertibilni.html')
+
+# `--mreza` iscrtava rezervirane ćelije mreže vizuala tankim okvirom, radi
+# provjere rasporeda potpisne stranice. U dokumentu koji ide na potpis okvira
+# nema — a i kad je uključen, siv je toliko da ga mjerenje tinte iz
+# src/visual.ts ne vidi kao sadržaj (prag: piksel tamniji od 225).
+SHOW_GRID = '--mreza' in sys.argv
 
 # --- Emiteri -----------------------------------------------------------------
 # Svaki blok vraća {'docx': ..., 'html': ...} pa se isti sadržaj emitira u DOCX
@@ -82,118 +89,119 @@ def title(text):
     return {'docx': docx, 'html': f'<h1>{escape(text)}</h1>'}
 
 
-def pagebreak():
+def pagebreak(html=True):
+    """Prijelom stranice. `html=False` kad HTML prijelom radi @page pravilo —
+    dvostruki prijelom u Chromeu ostavlja praznu stranicu."""
     return {'docx': '<w:p><w:r><w:br w:type="page"/></w:r></w:p>',
-            'html': '<div class="pagebreak"></div>'}
+            'html': '<div class="pagebreak"></div>' if html else ''}
 
 
 def visual_space():
-    """Prazan prostor za vizual kvalificiranog elektroničkog potpisa.
+    """Prazan prostor za vizual kvalificiranog elektroničkog potpisa (DOCX).
 
-    Prilog A ePotpis specifikacije: vizual je 248×122 pt (≈ 87×43 mm), a A4 portrait
-    je podijeljen na 2 stupca × 6 redaka uz marginu 10 mm. Ovdje se rezervira jedna
-    ćelija te mreže ispod svakog potpisnika; src/visual.ts bira slobodnu ćeliju
-    najbližu imenu potpisnika i nikad iznad njega.
-
-    U DOCX-u (dokument koji se stvarno potpisuje) prostor je prazan; u HTML/PDF
-    pregledu se iscrtava iscrtkani okvir da se vidi gdje vizual sjeda.
-    """
-    docx = ('<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/>'
+    DOCX se ne potpisuje (potpisuje se PDF), pa je ovdje dovoljno šest praznih
+    redaka; PDF raspored je apsolutan i složen u signature_block()."""
+    return ('<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/>'
             '</w:pPr></w:p>' * 6)
-    html = ('<div class="vizual"><span>prostor za vizual kvalificiranog<br>'
-            'elektroničkog potpisa (Certilia)</span></div>')
-    return {'docx': docx, 'html': html}
 
 
 # --- Mreža vizuala (Prilog A) ------------------------------------------------
 # Vizual je 248×122 pt, mreža ima marginu 10 mm od ruba stranice, a A4 portrait
-# daje 2 stupca × 6 redaka (RelPos 1–12, red po red od vrha).
-# HTML stranica ima marginu 25 mm, pa se od koordinata mreže oduzima ta margina
-# da se dobije položaj unutar sadržaja. Rezervirane trake moraju pasti TOČNO na
-# retke mreže — inače ePotpis smjesti vizual preko teksta (naučeno na primjerku
-# od 27.07.2026., gdje su ćelije 4 i 7 sjele na imena potpisnika).
-PAGE_MARGIN_PT = 25 * 2.83464567       # margina HTML stranice
-GRID_COL = [28.3, 318.6]               # x lijevog i desnog stupca mreže
-GRID_ROW_3 = 293.6                     # y 3. retka → ćelije 5 (lijevo) i 6 (desno)
-GRID_ROW_5 = 558.9                     # y 5. retka → ćelije 9 (lijevo) i 10 (desno)
-VISUAL_W_PT, VISUAL_H_PT = 248, 122
+# daje 2 stupca × 6 redaka (RelPos 1–12, red po red od vrha, 11 = dolje lijevo).
+# Rezervirani prostor mora pasti TOČNO na ćeliju mreže — inače ePotpis smjesti
+# vizual preko imena potpisnika (naučeno na primjerku od 27.07.2026., gdje su
+# ćelije 4 i 7 sjele na imena).
+#
+# Zato potpisna stranica ima vlastitu marginu od 10 mm (@page potpisna), pa je
+# mreža ujedno i raspored stranice: ćelija = stupac teksta. Tekst se ne smije
+# proširiti izvan te margine — Chrome pri ispisu skalira CIJELI dokument da
+# ugura preljev (mjereno: faktor 0,9), pa se onda ništa ne poklapa s mrežom.
+POINTS_IN_MM = 2.83464567
+PAGE_W_PT, PAGE_H_PT = 595.276, 841.89     # A4 portrait
+GRID_MARGIN_PT = 10 * POINTS_IN_MM         # margina mreže vizuala = margina potpisne stranice
+VISUAL_W_PT, VISUAL_H_PT = 248.0, 122.0
+# ćelije rezervirane za vizuale: 5 = Zajmodavac, 6 = Zajmoprimac, 9 = Član
+# (10 ostaje slobodna kao pričuva za automatski odabir iz src/visual.ts)
+CELL_ZAJMODAVAC, CELL_ZAJMOPRIMAC, CELL_CLAN = 5, 6, 9
+
+
+def grid_cell(pos):
+    """RelPos (1–12) → (x, y) ćelije u točkama stranice, ishodište gore-lijevo.
+
+    Prijepis GetVisualGrid iz Priloga A — isti algoritam kao visualGrid() u
+    src/visual.ts. Računa se, a ne hardkodira, jer ovisi o formatu stranice."""
+    cols = int((PAGE_W_PT - 2 * GRID_MARGIN_PT) // VISUAL_W_PT)
+    rows = int((PAGE_H_PT - 2 * GRID_MARGIN_PT) // VISUAL_H_PT)
+    hgap = ((PAGE_W_PT - 2 * GRID_MARGIN_PT - cols * VISUAL_W_PT) / (cols - 1)) if cols > 1 else 0
+    vgap = ((PAGE_H_PT - 2 * GRID_MARGIN_PT - rows * VISUAL_H_PT) / (rows - 1)) if rows > 1 else 0
+    row, col = divmod(pos - 1, cols)
+    return (GRID_MARGIN_PT + col * (VISUAL_W_PT + hgap),
+            GRID_MARGIN_PT + row * (VISUAL_H_PT + vgap))
 
 
 def _rel(page_pt):
-    """Koordinata stranice → koordinata unutar sadržaja (oduzeta margina)."""
-    return round(page_pt - PAGE_MARGIN_PT, 1)
+    """Koordinata stranice → koordinata unutar sadržaja potpisne stranice."""
+    return round(page_pt - GRID_MARGIN_PT, 2)
 
 
 def signature_block():
-    """Blok potpisa: Zajmodavac lijevo, Zajmoprimac desno, Član u trećem redu,
-    a ispod svakog potpisnika rezerviran prostor za Certilia vizual.
+    """Potpisna stranica: uloga i tvrtka iznad praznog prostora za vizual, ispod
+    prostora crta i ime potpisnika — klasičan raspored potpisnog mjesta, samo što
+    je „prostor za rukopis" ovdje točno jedna ćelija mreže vizuala.
 
-    DOCX zadržava tablični raspored (DOCX se ne potpisuje — potpisuje se PDF).
-    HTML slaže blokove apsolutno, tako da prazne trake padnu točno na retke
-    mreže: ćelija 5 = Zajmodavac, 6 = Zajmoprimac, 9 = Član."""
+    DOCX zadržava tablični raspored (DOCX se ne potpisuje — potpisuje se PDF)."""
     parties = [
-        [('Za Zajmodavca:', '{signer1_organization}', '{signer1_full_name}'),
-         ('Za Zajmoprimca:', '{signer2_organization}', '{signer2_full_name}')],
-        [('Za Člana:', '', '{signer3_full_name}'), None],
+        ('Za Zajmodavca:', '{signer1_organization}', '{signer1_full_name}', CELL_ZAJMODAVAC),
+        ('Za Zajmoprimca:', '{signer2_organization}', '{signer2_full_name}', CELL_ZAJMOPRIMAC),
+        ('Za Člana:', '', '{signer3_full_name}', CELL_CLAN),
     ]
-    rows_docx, rows_html = [], []
-    for row in parties:
-        tc, td = [], []
-        for cell in row:
-            if cell is None:
-                tc.append('<w:tc><w:tcPr><w:tcW w:w="4600" w:type="dxa"/></w:tcPr>'
-                          + p('', after=0)['docx'] + '</w:tc>')
-                td.append('<td></td>')
-                continue
-            label, org, name = cell
-            inner = [p(label, bold=True, align='left', after=60)]
-            if org:
-                inner.append(p(org, align='left', after=300))
-            else:
-                inner.append(p('', align='left', after=300))
-            inner += [p('_______________________________', align='left', after=60),
-                      p(name, align='left', after=120),
-                      visual_space()]
-            tc.append('<w:tc><w:tcPr><w:tcW w:w="4600" w:type="dxa"/></w:tcPr>'
-                      + ''.join(b['docx'] for b in inner) + '</w:tc>')
-            td.append('<td>' + ''.join(b['html'] for b in inner) + '</td>')
-        rows_docx.append(f'<w:tr>{"".join(tc)}</w:tr>')
-        rows_html.append(f'<tr>{"".join(td)}</tr>')
-    docx = ('<w:tbl><w:tblPr><w:tblW w:w="9200" w:type="dxa"/>'
-            '<w:tblLayout w:type="fixed"/></w:tblPr>'
-            '<w:tblGrid><w:gridCol w:w="4600"/><w:gridCol w:w="4600"/></w:tblGrid>'
+
+    # --- DOCX: tablica 2×2, isti redoslijed elemenata kao na potpisnoj stranici
+    def cell_docx(party):
+        label, org, name = party[:3]
+        inner = [p(label, bold=True, align='left', after=60)['docx'],
+                 p(org, align='left', after=60)['docx'],
+                 visual_space(),
+                 p('_______________________________', align='left', after=60)['docx'],
+                 p(name, align='left', after=0)['docx'],
+                 p('kvalificirani elektronički potpis', align='left', after=240)['docx']]
+        return ('<w:tc><w:tcPr><w:tcW w:w="4600" w:type="dxa"/></w:tcPr>'
+                + ''.join(inner) + '</w:tc>')
+
+    rows_docx = [f'<w:tr>{cell_docx(parties[0])}{cell_docx(parties[1])}</w:tr>',
+                 '<w:tr>' + cell_docx(parties[2])
+                 + '<w:tc><w:tcPr><w:tcW w:w="4600" w:type="dxa"/></w:tcPr>'
+                 + p('', after=0)['docx'] + '</w:tc></w:tr>']
+    docx = (p('POTPISI UGOVORNIH STRANA', bold=True, align='center', after=60,
+              cls='naslov', keep=True)['docx']
+            + p('U {mjesto_sklapanja}, dana {datum_sklapanja}', align='center',
+                after=60, keep=True)['docx']
+            + p('Prostor iznad crte s imenom potpisnika rezerviran je za vizual kvalificiranog '
+                'elektroničkog potpisa.', align='center', after=240, keep=True)['docx']
+            + '<w:tbl><w:tblPr><w:tblW w:w="9200" w:type="dxa"/>'
+              '<w:tblLayout w:type="fixed"/></w:tblPr>'
+              '<w:tblGrid><w:gridCol w:w="4600"/><w:gridCol w:w="4600"/></w:tblGrid>'
             + ''.join(rows_docx) + '</w:tbl>')
 
-    def block(left_pt, top_pt, label, org, name):
-        org_html = (f'<p class="l">{org}</p>' if org
-                    else '<p class="l">&nbsp;</p>')
-        return (f'<div class="sigblock" style="left:{left_pt}pt;top:{top_pt}pt">'
-                f'<p class="l"><strong>{label}</strong></p>{org_html}'
-                f'<p class="l potpiscrta">_______________________________</p>'
-                f'<p class="l">{name}</p></div>')
-
-    def box(col, row_pt):
-        return (f'<div class="vizualbox" style="left:{_rel(GRID_COL[col])}pt;'
-                f'top:{_rel(row_pt)}pt"></div>')
-
-    # tekstualni blok završava iznad trake, traka je točno na retku mreže
-    text_top_row3 = _rel(GRID_ROW_3) - 150
-    text_top_row5 = _rel(GRID_ROW_5) - 90
-    naslov = p('POTPISI UGOVORNIH STRANA', bold=True, align='center', after=60,
-               cls='naslov', keep=True)
-    datum = p('U {mjesto_sklapanja}, dana {datum_sklapanja}', align='center', after=240, keep=True)
-    docx = naslov['docx'] + datum['docx'] + docx
+    # --- HTML/PDF: svaki potpisnik je jedna ćelija mreže; zaglavlje raste prema
+    # gore, podnožje prema dolje, pa duga tvrtka ili ime ne mogu ući u prostor
+    # rezerviran za vizual.
+    def unit(label, org, name, pos):
+        x, y = grid_cell(pos)
+        return (f'<div class="potpisnik" style="left:{_rel(x)}pt;top:{_rel(y)}pt">'
+                f'<div class="zaglavlje"><p class="uloga">{label}</p>'
+                f'<p class="tvrtka">{org or "&nbsp;"}</p></div>'
+                f'<div class="podnozje"><p class="ime">{name}</p>'
+                f'<p class="napomena">kvalificirani elektronički potpis</p></div>'
+                + ('<div class="mreza"></div>' if SHOW_GRID else '')
+                + '</div>')
 
     html = ('<div class="sigpage">'
             + '<div class="sighead"><p class="c"><strong>POTPISI UGOVORNIH STRANA</strong></p>'
-            + '<p class="c">U {mjesto_sklapanja}, dana {datum_sklapanja}</p></div>'
-            + block(0, text_top_row3, 'Za Zajmodavca:', '{signer1_organization}',
-                    '{signer1_full_name}')
-            + block(_rel(GRID_COL[1]), text_top_row3, 'Za Zajmoprimca:',
-                    '{signer2_organization}', '{signer2_full_name}')
-            + box(0, GRID_ROW_3) + box(1, GRID_ROW_3)
-            + block(0, text_top_row5, 'Za Člana:', '', '{signer3_full_name}')
-            + box(0, GRID_ROW_5)
+            + '<p class="c">U {mjesto_sklapanja}, dana {datum_sklapanja}</p>'
+            + '<p class="c uputa">Prostor iznad crte s imenom potpisnika rezerviran je za vizual '
+              'kvalificiranog elektroničkog potpisa.</p></div>'
+            + ''.join(unit(*party) for party in parties)
             + '</div>')
     return {'docx': docx, 'html': html}
 
@@ -456,7 +464,7 @@ A(p('(4) Ovaj Ugovor stupa na snagu danom kada ga potpišu sve Ugovorne strane.'
 A(p('(5) Ugovorne strane suglasno utvrđuju da su ovaj Ugovor pročitale, razumjele i da on odgovara '
     'njihovoj pravoj volji, u znak čega ga potpisuju.', after=400))
 
-A(pagebreak())
+A(pagebreak(html=False))   # u HTML-u prijelom radi @page potpisna
 A(signature_block())
 
 # --- Sastavljanje DOCX-a -----------------------------------------------------
@@ -520,6 +528,10 @@ HTML = '''<!doctype html>
 <html lang="hr"><head><meta charset="utf-8"><title>Ugovor o zajmu s pravom konverzije</title>
 <style>
 @page { size: A4; margin: 25mm; }
+/* Potpisna stranica ima marginu mreže vizuala (10 mm), pa se rezervirani prostor
+   poklapa s ćelijom, a tekst potpisnika s njezinim lijevim rubom. */
+@page potpisna { size: A4; margin: 10mm; }
+html, body { margin: 0; padding: 0; }   /* 8px zadane margine bi pomaknule cijeli raspored */
 body { font-family: "Times New Roman", Times, serif; font-size: 12pt; line-height: 1.32; color: #000; }
 h1 { font-size: 14pt; font-weight: bold; text-align: center; margin: 0 0 18pt; }
 p { margin: 0 0 6pt; }
@@ -529,24 +541,26 @@ p.l { text-align: left; }
 p.naslov { margin-top: 14pt; margin-bottom: 2pt; }
 p.clanak { margin-bottom: 6pt; }
 p.naslov, p.clanak { break-after: avoid; page-break-after: avoid; }
-table.potpisi { width: 100%; margin-top: 8pt; }
-table.potpisi td { vertical-align: top; width: 50%; padding-right: 14pt; }
 .pagebreak { break-before: page; page-break-before: always; height: 0; }
-.vizual { height: 43mm; margin: 4pt 14pt 10pt 0; border: 1px dashed #bbb; border-radius: 2px;
-          display: flex; align-items: center; justify-content: center; text-align: center;
-          color: #999; font-size: 8pt; font-style: italic; }
-/* Potpisna stranica: apsolutni raspored poravnat s mrežom vizuala iz Priloga A.
-   Rezervirane trake (.vizualbox) leže točno na ćelijama 5, 6 i 9, pa vizual
-   sjeda u prazno i nikad ne prekriva ime potpisnika. Okvir trake je svjetliji
-   od praga tinte (225) iz src/visual.ts, da i automatski odabir ćeliju vidi
-   kao slobodnu. */
-.sigpage { position: relative; height: 620pt; }
-.sighead { position: absolute; left: 0; top: 0; width: 100%; }
-.sigblock { position: absolute; width: 248pt; }
-.sigblock p { margin: 0 0 4pt; }
-.sigblock p.potpiscrta { margin-top: 26pt; }
-.vizualbox { position: absolute; width: 248pt; height: 122pt;
-             border: 1px solid #ececec; border-radius: 2px; }
+/* Potpisna stranica: raspored je apsolutan i vezan na mrežu vizuala iz Priloga A.
+   .potpisnik JEST ćelija mreže (248×122 pt) — ostaje prazna da vizual sjedne u
+   nju; zaglavlje s ulogom i tvrtkom raste od nje prema gore, a crta s imenom
+   prema dolje, pa duži tekst nikad ne uđe u rezervirani prostor. Crta je 7 pt
+   ispod ćelije, izvan pojasa koji mjerenje tinte iz src/visual.ts gleda
+   (ćelija + 4 pt), pa smije biti tamna. */
+.sigpage { page: potpisna; position: relative; height: 700pt; }
+.sighead { position: absolute; left: 0; top: 41.75pt; width: 100%; }  /* isti vrh teksta kao na ostalim stranicama */
+.sighead p { margin: 0 0 6pt; }
+.sighead p.uputa { font-size: 9.5pt; color: #444; margin-top: 10pt; }
+.potpisnik { position: absolute; width: 248pt; height: 122pt; }
+.potpisnik p { margin: 0; text-align: left; }
+.zaglavlje { position: absolute; left: 0; bottom: 100%; width: 248pt; padding-bottom: 12pt; }
+.zaglavlje .uloga { font-weight: bold; }
+.podnozje { position: absolute; left: 0; top: 100%; width: 248pt;
+            margin-top: 7pt; padding-top: 5pt; border-top: 0.75pt solid #333; }
+.podnozje .napomena { font-size: 8pt; font-style: italic; color: #666; margin-top: 2pt; }
+.mreza { position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+         box-sizing: border-box; border: 1px solid #ececec; }
 </style></head><body>
 ''' + ''.join(b['html'] for b in BODY) + '\n</body></html>\n'
 
