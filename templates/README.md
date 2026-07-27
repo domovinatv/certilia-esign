@@ -53,9 +53,25 @@ margine 25 mm. Naslovi imaju `keepNext` (DOCX) odnosno `break-after: avoid` (HTM
 na dnu stranice.
 
 **Potpisna stranica** je zasebna (page break) i ispod svakog potpisnika ima rezerviranu praznu ćeliju
-za vizual kvalificiranog potpisa (≈ 87 × 43 mm, jedna ćelija Certilia mreže iz Priloga A). U DOCX-u
-je taj prostor prazan, u HTML/PDF pregledu se iscrtava iscrtkani okvir da se vidi gdje vizual sjeda.
+za vizual kvalificiranog potpisa (248 × 122 pt ≈ 87 × 43 mm, jedna ćelija Certilia mreže iz Priloga A).
 `src/visual.ts` bira slobodnu ćeliju najbližu imenu potpisnika i nikad iznad njega.
+
+Dvije stvari koje su naučene na prvom stvarnom potpisivanju (27.07.2026.) i zbog kojih je HTML
+potpisne stranice složen **apsolutno**, a ne tabličnim tokom:
+
+- **Trake moraju ležati točno na retku mreže.** Mreža ima marginu 10 mm od ruba stranice i fiksne
+  visine redaka; tekst ima marginu 25 mm. Ako se rezervirani prostor slaže po toku teksta, nikad se
+  ne poklopi s ćelijom i ePotpis smjesti vizual preko imena potpisnika. Koordinate su u generatoru
+  (`GRID_COL`, `GRID_ROW_3`, `GRID_ROW_5`); raspored je ćelija 5 = Zajmodavac, 6 = Zajmoprimac,
+  9 = Član.
+- **Okvir trake mora biti svjetliji od praga tinte.** `src/visual.ts` ćeliju smatra zauzetom iznad
+  0,4 % tamnih piksela, a tamnim smatra sve ispod 225. Iscrtkani okvir `#bbb` s natpisom „prostor za
+  vizual" padao je u tu granicu, pa je automatika **izbjegavala upravo rezervirane ćelije**. Sada je
+  okvir `#ececec` bez natpisa i mjerena tinta je 0,0000 — automatski odabir i eksplicitni
+  `--location` daju isti rezultat.
+
+Provjera nakon svake izmjene rasporeda: `pdftotext -bbox` nad potpisnom stranicom i test da nijedna
+riječ ne upada u pravokutnike ćelija 5, 6 i 9.
 
 Promjena teksta ugovora ide **u generatoru**, ne u DOCX-u:
 
