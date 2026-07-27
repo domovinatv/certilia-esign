@@ -7,3 +7,4 @@ data/
 .api-key-esign-domovina-ai
 coolify.env
 .local-secrets.env
+templates/certilia-katalog/*.docx
