@@ -8,4 +8,6 @@ data/
 coolify.env
 .local-secrets.env
 templates/certilia-katalog/*.docx
+templates/yc-safe/*.docx
+templates/yc-safe/*.pdf
 ugovori/

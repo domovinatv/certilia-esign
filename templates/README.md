@@ -88,6 +88,6 @@ python3 templates/vlastiti/build-ugovor-o-zajmu-konvertibilni.py   # regenerira 
       nominale novog poslovnog udjela (vidi tablicu zaokruživanja u `PRAVNA-ANALIZA.md`).
 - [ ] Popuniti podatke firmi A i B te direktora koji potpisuju, generirati primjerak za potpis —
       vođeni postupak je u `vlastiti/HANDOFF.md`.
-- [ ] Predložak dati bilježniku/odvjetniku na pregled prije potpisa (čl. 6.–10.).
+- [ ] Predložak dati bilježniku/odvjetniku na pregled prije potpisa (čl. 6.–11.).
 - [ ] `src/generate.ts`: docxtemplater (delimiteri `{` `}`) → LibreOffice → PDF → `npm run sign --
       --mobile --visual`, da je put od popunjenih polja do potpisanog PDF-a jedna naredba.

@@ -105,7 +105,7 @@ tri strane — zajmodavac, zajmoprimac i član društva; svatko svojim potpisom 
 
 ### 6. Podsjeti korisnika
 
-- Predložak neka prije potpisa pregleda javni bilježnik ili odvjetnik (osobito čl. 6.–10.).
+- Predložak neka prije potpisa pregleda javni bilježnik ili odvjetnik (osobito čl. 6.–11.).
 - Konverzija se ionako provodi kod bilježnika (izjava o preuzimanju poslovnog udjela,
   ZTD čl. 457. st. 5.), pa je to prilika za pregled.
 - Isplata ide **bezgotovinski**, s opisom plaćanja koji upućuje na ovaj ugovor — dokaz isplate je

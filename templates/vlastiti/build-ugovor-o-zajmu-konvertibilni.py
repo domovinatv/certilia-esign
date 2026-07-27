@@ -160,7 +160,7 @@ A(p('2. {signer2_organization}, sa sjedištem u {signer2_address}, OIB: {signer2
     '(u daljnjem tekstu: **Zajmoprimac**), te', after=120))
 A(p('3. {signer3_full_name}, OIB: {signer3_oib}, iz {signer3_address}, koji je član Zajmoprimca s '
     'poslovnim udjelom od {signer3_udio_postotak}% temeljnog kapitala (u daljnjem tekstu: **Član**), '
-    'koji ovaj Ugovor sklapa isključivo radi preuzimanja obveza iz članaka 8. i 10. ovoga Ugovora', after=120))
+    'koji ovaj Ugovor sklapa isključivo radi preuzimanja obveza iz članaka 8., 10. i 11. ovoga Ugovora', after=120))
 A(p('(zajedno: **Ugovorne strane**).', after=240))
 
 A(h('Članak 1. — Uvodne odredbe'))
@@ -294,7 +294,37 @@ A(p('(2) Po primitku obavijesti iz stavka 1. Zajmodavac može u roku od {rok_oba
 A(p('(3) Propuštanje obavijesti iz stavka 1. ovoga članka smatra se sprječavanjem ispunjenja uvjeta '
     'protivno načelu savjesnosti i poštenja u smislu članka 297. stavka 4. Zakona o obveznim odnosima.'))
 
-A(h('Članak 10. — Ugovorna kazna'))
+A(h('Članak 10. — Likvidnosni događaj'))
+A(p('(1) Likvidnosnim događajem smatra se, dok traje pravo na konverziju iz članka 6. ovoga Ugovora: '
+    'a) prodaja ili drugi prijenos poslovnih udjela koji zajedno predstavljaju više od 50% temeljnog '
+    'kapitala Zajmoprimca; b) prodaja ili drugo raspolaganje cjelokupnom ili pretežnim dijelom imovine '
+    'Zajmoprimca; c) pripajanje, spajanje ili druga statusna promjena nakon koje dotadašnji članovi '
+    'Zajmoprimca ne zadržavaju većinu glasova u društvu koje nastavlja poslovanje.'))
+A(p('(2) O namjeravanom Likvidnosnom događaju Zajmoprimac i Član obavještavaju Zajmodavca sukladno '
+    'članku 9. stavku 1. ovoga Ugovora. Zajmodavac u roku od {rok_obavijesti_dana} dana od primitka '
+    'obavijesti pisano bira između:'))
+A(p('a) povrata Glavnice, koja u tom slučaju dospijeva istodobno s Likvidnosnim događajem; ili',
+    indent=340))
+A(p('b) isplate Konverzijskog iznosa iz stavka 3. ovoga članka.', indent=340))
+A(p('(3) Konverzijski iznos jednak je umnošku Neto naknade i postotka koji bi Zajmodavac imao u '
+    'temeljnom kapitalu Zajmoprimca da je Konverzija provedena neposredno prije Likvidnosnog događaja, '
+    'izračunatog prema članku 6. stavcima 4. i 5. ovoga Ugovora. Neto naknada je ukupna naknada koju u '
+    'Likvidnosnom događaju primaju članovi Zajmoprimca, odnosno Zajmoprimac u slučaju iz stavka 1. '
+    'točke b), umanjena za razumne i dokazane troškove transakcije.'))
+A(p('(4) Konverzijski iznos isplaćuje se istodobno s primitkom naknade, a najkasnije u roku od '
+    '{rok_obavijesti_dana} dana od tog primitka. Obvezu isplate imaju: u slučajevima iz stavka 1. '
+    'točaka a) i c) Član i svaki drugi član koji prima naknadu, razmjerno primljenom, a u slučaju iz '
+    'točke b) Zajmoprimac. Zajmoprimac i Član za tu obvezu odgovaraju solidarno.'))
+A(p('(5) Ako naknada nije novčana, Zajmodavac ima pravo na novčanu protuvrijednost pripadajućeg dijela '
+    'naknade, utvrđenu po vrijednosti primijenjenoj u samoj transakciji.'))
+A(p('(6) Zajmodavac ne može istodobno ostvariti pravo iz ovoga članka i provesti Konverziju po istoj '
+    'osnovi. Isplatom po ovome članku prestaju sva prava i obveze iz ovoga Ugovora, osim obveze '
+    'čuvanja povjerljivosti.'))
+A(p('(7) Ako Zajmodavac u roku iz stavka 2. ne izjasni izbor, smatra se da je izabrao povrat Glavnice.'))
+A(p('(8) Obveza isplate iz ovoga članka novčana je obveza; na zakašnjenje s njezinim ispunjenjem '
+    'primjenjuje se članak 5. ovoga Ugovora.'))
+
+A(h('Članak 11. — Ugovorna kazna'))
 A(p('(1) Ako Zajmoprimac ili Član ne ispune obveze iz članaka 7., 8. ili 9. ovoga Ugovora, obvezuju se '
     'Zajmodavcu solidarno platiti ugovornu kaznu u iznosu od {ugovorna_kazna_iznos} EUR '
     '(slovima: {ugovorna_kazna_iznos_slovima}).'))
@@ -307,7 +337,7 @@ A(p('(4) U slučaju neispunjenja obveza iz članaka 7. ili 8. Zajmodavac može, 
     'kaznu, tražbinu na povrat Glavnice proglasiti dospjelom i zahtijevati njezin povrat u roku od 15 '
     'dana, uvećan za zatezne kamate od dana dostave Izjave o konverziji.'))
 
-A(h('Članak 11. — Izjave i jamstva Zajmoprimca i Člana'))
+A(h('Članak 12. — Izjave i jamstva Zajmoprimca i Člana'))
 A(p('(1) Zajmoprimac jamči da je uredno osnovan i upisan u sudski registar, da nad njim nije otvoren '
     'stečajni, predstečajni ni likvidacijski postupak i da mu nije blokiran račun, te da sklapanje '
     'ovoga Ugovora ne predstavlja povredu njegova društvenog ugovora ni bilo kojeg drugog ugovora.'))
@@ -321,14 +351,28 @@ A(p('(3) Član jamči da je nositelj poslovnog udjela od {signer3_udio_postotak}
 A(p('(4) Osobe koje potpisuju ovaj Ugovor jamče da su ovlaštene za zastupanje i sklapanje ovoga '
     'pravnog posla.'))
 
-A(h('Članak 12. — Povjerljivost'))
+A(h('Članak 13. — Prijenos prava i obveza'))
+A(p('(1) Zajmodavac ne može tražbinu po ovom Ugovoru, pravo na konverziju iz članka 6. niti bilo koje '
+    'drugo pravo iz ovoga Ugovora prenijeti, ustupiti ni založiti bez prethodne pisane suglasnosti '
+    'Zajmoprimca. Ugovorne strane izričito ugovaraju zabranu ustupanja u smislu članka 80. stavka 2. '
+    'Zakona o obveznim odnosima, tako da ugovor o ustupanju sklopljen bez takve suglasnosti nema '
+    'učinak prema Zajmoprimcu.'))
+A(p('(2) Suglasnost iz stavka 1. ne može se uskratiti bez opravdanog razloga kada se prijenos obavlja '
+    'na društvo koje je s Zajmodavcem povezano u smislu propisa o trgovačkim društvima, ni kada do '
+    'prijenosa dolazi statusnom promjenom Zajmodavca, univerzalnim pravnim sljedništvom ili '
+    'nasljeđivanjem; u tim slučajevima Zajmodavac o prijenosu obavještava Zajmoprimca u roku od '
+    '{rok_obavijesti_dana} dana.'))
+A(p('(3) Zajmoprimac i Član ne mogu svoje obveze iz ovoga Ugovora prenijeti na treće osobe bez '
+    'prethodne pisane suglasnosti Zajmodavca.'))
+
+A(h('Članak 14. — Povjerljivost'))
 A(p('(1) Ugovorne strane obvezuju se sadržaj ovoga Ugovora i podatke o poslovanju druge strane čuvati '
     'kao poslovnu tajnu, osim prema poreznim, računovodstvenim i pravnim savjetnicima, javnom '
     'bilježniku, registarskom sudu i nadležnim tijelima, te kada je objava obvezna po zakonu.'))
 A(p('(2) Zajmoprimac je ovlašten postojanje i uvjete ovoga Ugovora priopćiti potencijalnim '
     'ulagateljima u postupku dubinskog snimanja (due diligence).'))
 
-A(h('Članak 13. — Obavijesti'))
+A(h('Članak 15. — Obavijesti'))
 A(p('(1) Obavijesti po ovom Ugovoru dostavljaju se pisano, na adrese iz zaglavlja ovoga Ugovora ili '
     'elektroničkom poštom na adrese: Zajmodavac {signer1_email}, Zajmoprimac {signer2_email}, '
     'Član {signer3_email}.'))
@@ -338,12 +382,12 @@ A(p('(2) Izjava o konverziji, obavijest iz članka 9. i izjava o raskidu valjane
 A(p('(3) Svaka strana dužna je promjenu adrese ili adrese elektroničke pošte priopćiti drugim stranama '
     'u roku od 8 dana.'))
 
-A(h('Članak 14. — Mjerodavno pravo i rješavanje sporova'))
+A(h('Članak 16. — Mjerodavno pravo i rješavanje sporova'))
 A(p('(1) Na ovaj Ugovor primjenjuje se pravo Republike Hrvatske.'))
 A(p('(2) Sporove će Ugovorne strane nastojati riješiti sporazumno, a ako u tome ne uspiju u roku od 30 '
     'dana, nadležan je stvarno nadležni sud u {nadlezni_sud_grad}.'))
 
-A(h('Članak 15. — Završne odredbe'))
+A(h('Članak 17. — Završne odredbe'))
 A(p('(1) Izmjene i dopune ovoga Ugovora valjane su samo u pisanom obliku, uz potpis svih Ugovornih '
     'strana.'))
 A(p('(2) Ako pojedina odredba ovoga Ugovora bude ništetna ili neprovediva, ostale odredbe ostaju na '

@@ -13,7 +13,7 @@ Korišteni propisi:
 | Odluka o objavi kamatne stope na zajmove između povezanih osoba za 2026. | 150/25 | 2,65 %, na snazi od 31.12.2025. |
 
 **Ovo nije pravni savjet.** Konverzija se ionako mora provesti kod javnog bilježnika (ZTD čl. 457. st. 5.),
-pa neka bilježnik ili odvjetnik pregleda konkretan tekst prije potpisa — osobito članke 6.–10.
+pa neka bilježnik ili odvjetnik pregleda konkretan tekst prije potpisa — osobito članke 6.–11.
 
 ---
 
@@ -43,6 +43,7 @@ zakonske zatezne (**čl. 26. st. 3.**).
 | ZOO čl. 508. | kod namjenskog zajma zajmodavac može raskinuti ako se sredstva troše u drugu svrhu | svrha je opisana široko („tekuće poslovanje") da se ne stvori nepotreban razlog za raskid |
 | ZOO čl. 29. st. 2. | zatezne kamate u trgovačkim ugovorima = referentna stopa ESB + 8 p.b. | čl. 5. st. 1. |
 | ZOO čl. 225. | tražbina zastarijeva za 5 godina | rok opcije i dospijeće postavljeni znatno unutar toga |
+| ZOO čl. 80. st. 2. | ugovorna zabrana ustupa — ustup bez pristanka dužnika nema učinak prema njemu | čl. 13. st. 1. |
 
 ### Porezni dio — ovdje leži jedini stvarni rizik beskamatnosti
 
@@ -125,7 +126,7 @@ osigurane s tri stvari:
    poštenju, spriječi strana na čiji je teret. Pokriva scenarij „društvo namjerno ne sazove skupštinu".
    Izričito se poziva u čl. 9. st. 3. ugovora.
 2. **Ugovorna kazna (ZOO čl. 350.)** — bitno: **st. 3. zabranjuje ugovornu kaznu za novčane obveze**.
-   Zato je u čl. 10. st. 2. kazna izrijekom vezana uz **nenovčanu** obvezu (provedba konverzije,
+   Zato je u čl. 11. st. 2. kazna izrijekom vezana uz **nenovčanu** obvezu (provedba konverzije,
    glasovanje, obavijest), a ne uz vraćanje glavnice. Da je vezana uz povrat novca, bila bi ništetna.
    Sud kaznu može sniziti ako je nerazmjerno visoka (**ZOO čl. 354.**) — 2× glavnice je obranjivo, 10×
    vjerojatno ne.
@@ -138,6 +139,41 @@ tretira kao ulog u pravima po ZTD čl. 457. st. 7., a ne kao gotovinski ulog kom
 vrijednosti unesene tražbine).
 
 ---
+
+## 3a. Likvidnosni događaj i zabrana ustupa (čl. 10. i 13.)
+
+Dvije odredbe dodane 27.07.2026. nakon usporedbe s YC SAFE-om
+(`../yc-safe/USPOREDBA-SAFE-vs-HR.md`). Obje ispravljaju asimetriju **na štetu zajmoprimca**, jer je
+bez njih posao bio nagnut u njegovu korist.
+
+### Likvidnosni događaj (čl. 10.)
+
+Rupa koju zatvara: ako se društvo proda prije isteka roka opcije, zajmodavac bez ove odredbe dobiva
+samo glavnicu natrag, dok član unovčava cijelu vrijednost društva. SAFE to rješava kroz Liquidity
+Event (čl. 1(b) SAFE-a: *greater of* Cash-Out Amount i Conversion Amount) — čl. 10. je hrvatski
+ekvivalent.
+
+Konstrukcijski detalj koji je bilo nužno pogoditi: **kod prodaje udjela novac prima član, a ne
+društvo.** Obveza isplate zato pada na člana (i svakog drugog člana koji prima naknadu, razmjerno
+primljenom), a na društvo samo kod prodaje imovine; za tu obvezu odgovaraju solidarno. Da je obveza
+bila napisana samo na teret društva, u najčešćem scenariju (share deal) bila bi prazna.
+
+Obveza isplate je **novčana**, pa je izvan dosega ugovorne kazne (ZOO čl. 350. st. 3.) — zato je
+st. 8. veže na zatezne kamate iz čl. 5., a ne na kaznu iz čl. 11.
+
+### Zabrana ustupa (čl. 13.)
+
+> **ZOO čl. 80. st. 2.** (provjereno na zakon.hr 27.07.2026.): „Ugovor o ustupanju nema učinak prema
+> dužniku ako su on i vjerovnik ugovorili da ovaj neće moći prenijeti tražbinu na drugoga ili da je
+> neće moći prenijeti bez dužnikova pristanka."
+
+Bez te klauzule zajmodavac može tražbinu **zajedno s opcijom** cedirati bilo kome — i zajmoprimac se
+odjednom nalazi u pregovorima o vlasništvu s osobom koju nije birao. Zabrana ustupa u RH stvarno
+djeluje (učinak: ustup bez suglasnosti nema učinak prema dužniku), za razliku od nekih pravnih
+sustava gdje je takva zabrana samo obveznopravna.
+
+St. 2. ostavlja razumne iznimke (povezano društvo, statusna promjena, univerzalno sljedništvo,
+nasljeđivanje) uz obavijest, da klauzula ne postane kočnica za uredne situacije.
 
 ## 4. Što ovaj instrument stvarno radi za cap table
 
@@ -164,7 +200,7 @@ Brojke, da očekivanja budu kalibrirana:
       `signer2_temeljni_kapital` — o njemu ovisi cijeli izračun nominale.
 - [ ] Provjeriti traži li **društveni ugovor** firme A veću većinu od 3/4 ili suglasnost društva za
       ulazak novog člana (ZTD čl. 455. st. 1., čl. 413.).
-- [ ] Provjeriti postoje li ranije izdane opcije/konvertibilni zajmovi (jamstvo iz čl. 11. st. 2.).
+- [ ] Provjeriti postoje li ranije izdane opcije/konvertibilni zajmovi (jamstvo iz čl. 12. st. 2.).
 - [ ] Ako firme **jesu** povezane osobe — maknuti izjavu iz čl. 3. st. 2. i ugovoriti kamatu ≥ 2,65 %.
 - [ ] Isplatu izvršiti **bezgotovinski**, s jasnim opisom plaćanja („zajam po ugovoru od …") — dokaz
       isplate je prilog prijavi registru pri konverziji.
