@@ -15,8 +15,14 @@ from xml.sax.saxutils import escape
 
 OUT_DOCX = os.path.join(os.path.dirname(__file__), 'ugovor-o-zajmu-konvertibilni.docx')
 OUT_JSON = os.path.join(os.path.dirname(__file__), 'ugovor-o-zajmu-konvertibilni.fields.json')
+OUT_HTML = os.path.join(os.path.dirname(__file__), 'ugovor-o-zajmu-konvertibilni.html')
 
-# --- OOXML helperi -----------------------------------------------------------
+# --- Emiteri -----------------------------------------------------------------
+# Svaki blok vraća {'docx': ..., 'html': ...} pa se isti sadržaj emitira u DOCX
+# (za potpisivanje) i u HTML (iz kojega render-pdf.sh radi PDF pregled).
+# Format prati uobičajeni raspored hrvatskih ugovora i Narodnih novina:
+# naslov članka verzalom i centriran, ispod njega centrirano "Članak N.",
+# tijelo obostrano poravnato, Times New Roman 12 pt.
 
 def runs(text, bold=False):
     """Tekst → <w:r> elementi; **bold** unutar teksta prebacuje podebljanje."""
@@ -30,23 +36,50 @@ def runs(text, bold=False):
     return ''.join(out)
 
 
-def p(text='', bold=False, align='both', before=0, after=120, indent=0, size=None):
-    jc = f'<w:jc w:val="{align}"/>'
+def runs_html(text, bold=False):
+    out = []
+    for i, part in enumerate(text.split('**')):
+        if not part:
+            continue
+        b = bold != (i % 2 == 1)
+        out.append(f'<strong>{escape(part)}</strong>' if b else escape(part))
+    return ''.join(out)
+
+
+def p(text='', bold=False, align='both', before=0, after=120, indent=0, cls='', keep=False):
     ind = f'<w:ind w:left="{indent}"/>' if indent else ''
-    sz = f'<w:rPr><w:sz w:val="{size}"/></w:rPr>' if size else ''
-    return (f'<w:p><w:pPr>{jc}{ind}<w:spacing w:before="{before}" w:after="{after}"/>{sz}</w:pPr>'
+    kn = '<w:keepNext/>' if keep else ''   # naslov članka ne smije ostati sam na dnu stranice
+    docx = (f'<w:p><w:pPr>{kn}<w:jc w:val="{align}"/>{ind}'
+            f'<w:spacing w:before="{before}" w:after="{after}"/></w:pPr>'
             f'{runs(text, bold)}</w:p>')
+    css = {'both': 'j', 'center': 'c', 'left': 'l'}[align]
+    klass = f'{css} {cls}'.strip()
+    style = f' style="margin-left:{indent / 567:.1f}cm"' if indent else ''
+    html = f'<p class="{klass}"{style}>{runs_html(text, bold) or "&nbsp;"}</p>'
+    return {'docx': docx, 'html': html}
 
 
-def h(text, before=280, after=120, align='left'):
-    return (f'<w:p><w:pPr><w:jc w:val="{align}"/><w:spacing w:before="{before}" w:after="{after}"/>'
-            f'<w:rPr><w:b/></w:rPr></w:pPr>{runs(text, bold=True)}</w:p>')
+def h(text, before=280, after=120):
+    """'Članak 6. — Pravo na konverziju' → centrirani naslov verzalom + centrirani broj članka."""
+    if ' — ' in text:
+        num, naslov = text.split(' — ', 1)
+    else:
+        num, naslov = text, ''
+    blocks = []
+    if naslov:
+        blocks.append(p(naslov.upper(), bold=True, align='center', before=before, after=40,
+                        cls='naslov', keep=True))
+    blocks.append(p(num, bold=True, align='center',
+                    before=0 if naslov else before, after=after, cls='clanak', keep=True))
+    return {'docx': ''.join(b['docx'] for b in blocks),
+            'html': ''.join(b['html'] for b in blocks)}
 
 
 def title(text):
-    return (f'<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="240"/>'
-            f'<w:rPr><w:b/><w:sz w:val="28"/></w:rPr></w:pPr>'
-            f'<w:r><w:rPr><w:b/><w:sz w:val="28"/></w:rPr><w:t xml:space="preserve">{escape(text)}</w:t></w:r></w:p>')
+    docx = (f'<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="360"/></w:pPr>'
+            f'<w:r><w:rPr><w:b/><w:sz w:val="28"/></w:rPr>'
+            f'<w:t xml:space="preserve">{escape(text)}</w:t></w:r></w:p>')
+    return {'docx': docx, 'html': f'<h1>{escape(text)}</h1>'}
 
 
 def signature_table():
@@ -55,19 +88,20 @@ def signature_table():
         ('Za Zajmodavca:', '{signer1_organization}', '{signer1_full_name}'),
         ('Za Zajmoprimca:', '{signer2_organization}', '{signer2_full_name}'),
     ]
-    tc = []
+    tc, td = [], []
     for label, org, name in cells:
-        tc.append(
-            '<w:tc><w:tcPr><w:tcW w:w="4600" w:type="dxa"/></w:tcPr>'
-            + p(label, bold=True, align='left', after=60)
-            + p(org, align='left', after=360)
-            + p('_______________________________', align='left', after=60)
-            + p(name, align='left', after=0)
-            + '</w:tc>')
-    return ('<w:tbl><w:tblPr><w:tblW w:w="9200" w:type="dxa"/>'
+        inner = [p(label, bold=True, align='left', after=60),
+                 p(org, align='left', after=360),
+                 p('_______________________________', align='left', after=60),
+                 p(name, align='left', after=0)]
+        tc.append('<w:tc><w:tcPr><w:tcW w:w="4600" w:type="dxa"/></w:tcPr>'
+                  + ''.join(b['docx'] for b in inner) + '</w:tc>')
+        td.append('<td>' + ''.join(b['html'] for b in inner) + '</td>')
+    docx = ('<w:tbl><w:tblPr><w:tblW w:w="9200" w:type="dxa"/>'
             '<w:tblLayout w:type="fixed"/></w:tblPr>'
             '<w:tblGrid><w:gridCol w:w="4600"/><w:gridCol w:w="4600"/></w:tblGrid>'
             f'<w:tr>{"".join(tc)}</w:tr></w:tbl>')
+    return {'docx': docx, 'html': f'<table class="potpisi"><tr>{"".join(td)}</tr></table>'}
 
 
 # --- Tekst ugovora -----------------------------------------------------------
@@ -295,9 +329,9 @@ A(p('{signer3_full_name}', align='left', after=0))
 DOC = (
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
     '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-    '<w:body>' + ''.join(BODY) +
+    '<w:body>' + ''.join(b['docx'] for b in BODY) +
     '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>'
-    '<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="709" w:footer="709"/>'
+    '<w:pgMar w:top="1417" w:right="1417" w:bottom="1417" w:left="1417" w:header="709" w:footer="709"/>'
     '</w:sectPr></w:body></w:document>'
 )
 
@@ -329,9 +363,10 @@ STYLES = (
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
     '<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
     '<w:docDefaults><w:rPrDefault><w:rPr>'
-    '<w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="22"/><w:szCs w:val="22"/>'
+    '<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>'
+    '<w:sz w:val="24"/><w:szCs w:val="24"/>'
     '<w:lang w:val="hr-HR"/></w:rPr></w:rPrDefault>'
-    '<w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault>'
+    '<w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault>'
     '</w:docDefaults>'
     '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>'
     '</w:styles>'
@@ -343,6 +378,29 @@ with zipfile.ZipFile(OUT_DOCX, 'w', zipfile.ZIP_DEFLATED) as z:
     z.writestr('word/_rels/document.xml.rels', DOC_RELS)
     z.writestr('word/styles.xml', STYLES)
     z.writestr('word/document.xml', DOC)
+
+# --- HTML inačica (izvor za PDF pregled) -------------------------------------
+
+HTML = '''<!doctype html>
+<html lang="hr"><head><meta charset="utf-8"><title>Ugovor o zajmu s pravom konverzije</title>
+<style>
+@page { size: A4; margin: 25mm; }
+body { font-family: "Times New Roman", Times, serif; font-size: 12pt; line-height: 1.32; color: #000; }
+h1 { font-size: 14pt; font-weight: bold; text-align: center; margin: 0 0 18pt; }
+p { margin: 0 0 6pt; }
+p.j { text-align: justify; }
+p.c { text-align: center; }
+p.l { text-align: left; }
+p.naslov { margin-top: 14pt; margin-bottom: 2pt; }
+p.clanak { margin-bottom: 6pt; }
+p.naslov, p.clanak { break-after: avoid; page-break-after: avoid; }
+table.potpisi { width: 100%; margin-top: 8pt; }
+table.potpisi td { vertical-align: top; width: 50%; padding-right: 14pt; }
+</style></head><body>
+''' + ''.join(b['html'] for b in BODY) + '\n</body></html>\n'
+
+with open(OUT_HTML, 'w', encoding='utf8') as f:
+    f.write(HTML)
 
 # --- Popis polja -------------------------------------------------------------
 

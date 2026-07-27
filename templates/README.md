@@ -24,12 +24,18 @@ doc.certilia.com).
 
 | datoteka | što je |
 |---|---|
-| `build-ugovor-o-zajmu-konvertibilni.py` | generator DOCX-a (bez ovisnosti, OOXML se sastavlja ručno) |
-| `ugovor-o-zajmu-konvertibilni.docx` | predložak, 15 članaka, 38 polja `{snake_case}` |
+| `build-ugovor-o-zajmu-konvertibilni.py` | generator (bez ovisnosti); isti sadržaj emitira u DOCX i HTML |
+| `ugovor-o-zajmu-konvertibilni.docx` | predložak za potpisivanje, 15 članaka, 38 polja `{snake_case}` |
+| `ugovor-o-zajmu-konvertibilni.html` | isti tekst u HTML-u — izvor za PDF pregled |
 | `ugovor-o-zajmu-konvertibilni.fields.json` | opis i primjer vrijednosti za svako polje |
 | `ugovor-o-zajmu-konvertibilni.pdf` | PDF za pregled (placeholderi vidljivi) |
-| `render-pdf.sh` | DOCX → PDF (pandoc + headless Chrome) |
+| `render-pdf.sh` | HTML → PDF (headless Chrome) |
 | `PRAVNA-ANALIZA.md` | provjera po ZOO/ZTD/ZPD s referencama na članke i NN |
+
+**Format** prati uobičajeni raspored hrvatskih ugovora i Narodnih novina: Times New Roman 12 pt,
+naslov članka verzalom i centriran, ispod njega centrirano „Članak N.", tijelo obostrano poravnato,
+margine 25 mm. Naslovi imaju `keepNext` (DOCX) odnosno `break-after: avoid` (HTML) da ne ostanu sami
+na dnu stranice.
 
 Promjena teksta ugovora ide **u generatoru**, ne u DOCX-u:
 
@@ -53,8 +59,8 @@ python3 templates/vlastiti/build-ugovor-o-zajmu-konvertibilni.py   # regenerira 
 - Chrome blokira višestruka automatska preuzimanja s iste stranice; treba jednom ručno dopustiti
   preuzimanje za `doc.certilia.com`.
 - **LibreOffice nije instaliran** na razvojnom Macu (`soffice` u `/opt/homebrew/bin` je slomljen shim),
-  pa `render-pdf.sh` ide preko pandoca i headless Chromea. Za pravi pipeline popunjeni-DOCX → PDF
-  treba `brew install --cask libreoffice`.
+  pa `render-pdf.sh` PDF radi headless Chromeom iz HTML inačice koju generator ionako emitira. Za
+  pravi pipeline popunjeni-DOCX → PDF treba `brew install --cask libreoffice`.
 
 ## Sljedeći koraci
 
