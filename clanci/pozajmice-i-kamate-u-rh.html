@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="hr"><head><meta charset="utf-8">
+<title>Pozajmice i kamate u RH</title>
+<style>
+@page { size: A4; margin: 18mm 16mm; }
+html { font-size: 10.5pt; }
+body { font-family: Georgia, "Times New Roman", serif; line-height: 1.45;
+       color: #1a1a1a; margin: 0; max-width: 100%; }
+h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 .8rem; }
+h2 { font-size: 1.25rem; margin: 1.6rem 0 .5rem; border-bottom: 1.5px solid #1a1a1a;
+     padding-bottom: .15rem; break-after: avoid; }
+h3 { font-size: 1.05rem; margin: 1.1rem 0 .4rem; break-after: avoid; }
+p { margin: 0 0 .55rem; text-align: justify; }
+a { color: #0b4a8b; text-decoration: none; }
+blockquote { margin: .8rem 0; padding: .5rem .9rem; border-left: 3px solid #0b4a8b;
+             background: #f2f6fb; font-size: .95rem; }
+blockquote p { text-align: left; }
+table { border-collapse: collapse; width: 100%; margin: .6rem 0 1rem; font-size: .88rem; }
+th, td { border: .5pt solid #999; padding: .28rem .45rem; vertical-align: top; text-align: left; }
+th { background: #eef1f5; }
+tr { break-inside: avoid; }
+code { font-family: "SF Mono", Menlo, monospace; font-size: .85em; background: #f4f4f4;
+       padding: 0 .2em; }
+pre.mermaid, .mermaid-done { display: flex; justify-content: center; background: none;
+              break-inside: avoid; margin: .9rem 0; }
+.mermaid-done .mermaid { width: 100%; display: flex; justify-content: center; }
+pre.mermaid svg, .mermaid-done svg { max-width: 100%; height: auto; }
+ol, ul { margin: 0 0 .6rem; padding-left: 1.3rem; }
+li { margin-bottom: .25rem; }
+hr { border: 0; border-top: .5pt solid #999; margin: 1.2rem 0; }
+</style>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({ startOnLoad: true, theme: "neutral",
+                       flowchart: { htmlLabels: true, useMaxWidth: true } });
+</script>
+</head><body>
+<h1
+id="pozajmice-i-kamate-u-republici-hrvatskoj--tko-kome-smije-posuditi-uz-0--a-tko-mora-obračunati-kamatu">Pozajmice
+i kamate u Republici Hrvatskoj — tko kome smije posuditi uz 0 %, a tko
+mora obračunati kamatu</h1>
+<blockquote>
+<p><strong>Edukativni članak.</strong> Sve tvrdnje su vezane na članke
+propisa s poveznicama na Narodne novine i na objavljena mišljenja
+Porezne uprave. <strong>Nije pravni ni porezni savjet</strong> — za
+konkretan slučaj provjerite s odvjetnikom ili poreznim savjetnikom.</p>
+</blockquote>
+<table>
+<tbody>
+<tr>
+<td><strong>Autor</strong></td>
+<td>Matija Stepanić, CEO @ ITalk d.o.o. za informacijske tehnologije,
+Zagreb, IX. Južna obala 20 (OIB društva: 54872935051, MBS:
+081042440)</td>
+</tr>
+<tr>
+<td><strong>Kontakt</strong></td>
+<td><a href="mailto:ms@italk.hr">ms@italk.hr</a> · <a
+href="mailto:stepanic.matija@gmail.com">stepanic.matija@gmail.com</a></td>
+</tr>
+<tr>
+<td><strong>Izrađeno</strong></td>
+<td>29.07.2026. u 12:40 (CEST)</td>
+</tr>
+<tr>
+<td><strong>Transparentnost</strong></td>
+<td>Istraženo i sastavljeno uz <a
+href="https://claude.com/claude-code">Claude Code</a> (Anthropic), model
+<strong>Claude Fable 5</strong> (<code>claude-fable-5</code>). Svi
+navodi provjereni 29.07.2026. na primarnim izvorima
+(narodne-novine.nn.hr, zakon.hr, porezna-uprava.gov.hr); autor odgovara
+za konačni sadržaj.</td>
+</tr>
+<tr>
+<td><strong>Verzija</strong></td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="tldr">TL;DR</h2>
+<ol type="1">
+<li><strong>Građanskopravno je kamata od 0 % uvijek dopuštena</strong> —
+kamata na zajam postoji samo ako je ugovorena (ZOO čl. 500. st. 1.).
+„Minimalna zakonska kamata" kao opća obveza <strong>ne
+postoji</strong>.</li>
+<li>U <strong>trgovačkim ugovorima</strong> (obje strane trgovci) kamata
+se duguje i kad nije ugovorena (ZOO čl. 500. st. 2.) — pa beskamatnost
+treba <strong>izričito ugovoriti</strong>, inače zajmoprimac kamatu
+duguje po samom zakonu.</li>
+<li>Minimumi postoje <strong>samo porezno</strong> i samo za dvije
+situacije: <strong>2 %</strong> kad pravna osoba pozajmljuje svojem
+radniku ili članu (fizičkoj osobi), <strong>2,65 %</strong> (za 2026.)
+između <strong>povezanih</strong> obveznika poreza na dobit — s time da
+se za dvije tuzemne „uredne" firme ni to ne primjenjuje (ZPD čl. 13. st.
+5.).</li>
+<li>Tvrdnja „između dvije pravne osobe kamata je obavezna" je
+<strong>netočna</strong> — potvrđeno mišljenjem Porezne uprave iz 2011.
+(v. <a href="#mit-1">§ Mit 1</a>).</li>
+<li>Tko pozajmice daje <strong>učestalo</strong>, ulazi u PDV-ovsku
+priču (oslobođene financijske usluge → pro-rata podjela pretporeza), ali
+time <strong>ne postaje kreditna institucija</strong> — zakonom je
+rezervirano primanje depozita od javnosti, ne kreditiranje vlastitim
+novcem (v. <a href="#mit-2">§ Mit 2</a>).</li>
+<li>Propisa koji bi tražio povrat pozajmice <strong>unutar iste poslovne
+godine</strong> — nema. Mit dolazi iz pravila o <strong>predujmu
+dobiti</strong> i iz obračunskog priznavanja prihoda od kamata (v. <a
+href="#mit-3">§ Mit 3</a>).</li>
+</ol>
+<hr />
+<h2 id="1-dva-odvojena-pravna-sloja">1. Dva odvojena pravna sloja</h2>
+<p>Kod svake pozajmice treba odvojiti dva pitanja koja se u praksi
+stalno miješaju:</p>
+<pre class="mermaid">flowchart TB
+    subgraph OBVEZNO[&quot;Sloj 1 — obvezno pravo (ZOO): SMIJE li kamata biti 0%?&quot;]
+        Z1[&quot;Kamata postoji samo ako je ugovorena&lt;br/&gt;ZOO čl. 500. st. 1.&quot;] --&gt; Z2{&quot;Jesu li obje strane&lt;br/&gt;trgovci (trgovački ugovor)?&quot;}
+        Z2 -- &quot;ne&quot; --&gt; Z3[&quot;0% vrijedi i šutnjom&lt;br/&gt;(kamata se ne duguje)&quot;]
+        Z2 -- &quot;da&quot; --&gt; Z4[&quot;Kamata se duguje i bez ugovaranja&lt;br/&gt;ZOO čl. 500. st. 2.&lt;br/&gt;→ beskamatnost IZRIČITO ugovoriti&quot;]
+    end
+    subgraph POREZNO[&quot;Sloj 2 — porezni propisi: ŠTO se dogodi kod 0%?&quot;]
+        P1[&quot;Ovisi o kombinaciji strana&lt;br/&gt;(tablica i dijagram u nastavku)&quot;]
+    end
+    OBVEZNO --&gt; POREZNO</pre>
+<p><strong>Sloj 1 (Zakon o obveznim odnosima):</strong> zajam uređuju
+čl. 499.–508. ZOO-a. Odgovor je uvijek — da, smije 0 %. Jedina zamka je
+čl. 500. st. 2. za trgovačke ugovore (točka 2. TL;DR-a).</p>
+<p><strong>Sloj 2 (porezni propisi):</strong> država nikome ne brani
+beskamatni zajam, ali u dvije situacije kod 0 %
+<strong>pripisuje</strong> nekome prihod ili dohodak i na njega
+naplaćuje porez. Sve kombinacije su u nastavku.</p>
+<h2 id="2-aktualne-stope-2026-drugo-polugodište">2. Aktualne stope
+(2026., drugo polugodište)</h2>
+<table>
+<thead>
+<tr>
+<th>Stopa</th>
+<th style="text-align: right;">Iznos</th>
+<th>Osnova</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Povezane osobe (porez na dobit)</td>
+<td style="text-align: right;"><strong>2,65 %</strong></td>
+<td>ZPD čl. 14. st. 3. + <a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2025_12_150_2236.html">Odluka,
+NN 150/25</a></td>
+</tr>
+<tr>
+<td>Prag „povoljnije kamate" fizičkim osobama</td>
+<td style="text-align: right;"><strong>2 %</strong></td>
+<td>ZPDoh čl. 21. st. 3.</td>
+</tr>
+<tr>
+<td>Referentna stopa (ESB, na 1.7.2026.)</td>
+<td style="text-align: right;">2,40 %</td>
+<td>ZOO čl. 29. st. 8.</td>
+</tr>
+<tr>
+<td>Zatezna — trgovački ugovori</td>
+<td style="text-align: right;"><strong>10,40 %</strong></td>
+<td>ZOO čl. 29. st. 2. (referentna + 8 p. b.)</td>
+</tr>
+<tr>
+<td>Zatezna — ostali odnosi</td>
+<td style="text-align: right;"><strong>5,40 %</strong></td>
+<td>ZOO čl. 29. st. 2. (referentna + 3 p. b.)</td>
+</tr>
+<tr>
+<td><strong>Najviša</strong> ugovorna — barem jedna strana nije
+trgovac</td>
+<td style="text-align: right;"><strong>8,10 %</strong></td>
+<td>ZOO čl. 26. st. 1. (zatezna + ½)</td>
+</tr>
+<tr>
+<td><strong>Najviša</strong> ugovorna — trgovci međusobno</td>
+<td style="text-align: right;"><strong>18,20 %</strong></td>
+<td>ZOO čl. 26. st. 2. (zatezna + ¾)</td>
+</tr>
+<tr>
+<td>Kamata ugovorena, ali stopa nije određena</td>
+<td style="text-align: right;">1,35 % / 5,20 %</td>
+<td>ZOO čl. 26. st. 3. (¼ odnosno ½ zatezne)</td>
+</tr>
+<tr>
+<td>Porez na kamate koje primi fizička osoba</td>
+<td style="text-align: right;"><strong>12 %</strong></td>
+<td>ZPDoh čl. 65. i 70. (dohodak od kapitala)</td>
+</tr>
+<tr>
+<td>Izuzimanja (skrivene isplate dobiti)</td>
+<td style="text-align: right;"><strong>36 %</strong></td>
+<td>ZPDoh čl. 66. i 70.</td>
+</tr>
+</tbody>
+</table>
+<p>Propisana stopa za povezane osobe objavljuje se <strong>svake
+godine</strong> u Narodnim novinama (odluka ministra financija, obično u
+prosincu); zatezne se preračunavaju <strong>1. siječnja i 1.
+srpnja</strong>.</p>
+<h2 id="3-sve-kombinacije-strana-zajmodavac--zajmoprimac">3. Sve
+kombinacije strana (zajmodavac → zajmoprimac)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Zajmodavac → Zajmoprimac</th>
+<th>0 % bez poreznih posljedica?</th>
+<th>Što se dogodi kod 0 %</th>
+<th>Min. kamata</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Fizička → fizička (obje privatno)</td>
+<td><strong>DA</strong></td>
+<td>Ništa; oprost duga = darovanje (porez na darovanja 4 %, uz
+oslobođenja za bliske srodnike)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Fizička → pravna (nepovezane)</td>
+<td><strong>DA</strong></td>
+<td>Ništa</td>
+<td>—</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Vlasnik/član (fizička) → svoje društvo</td>
+<td><strong>DA</strong></td>
+<td>Ništa — imputacije nema kad fizička osoba <em>daje</em> pogodnost.
+Ugovori li kamatu: društvu je priznat rashod najviše <strong>2,65
+%</strong>; kod udjela ≥ 25 % i zajma &gt; 4× udjela u kapitalu kamata
+uopće nije priznata (ZPD čl. 8.)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Radnik → poslodavac</td>
+<td><strong>DA</strong></td>
+<td>Ništa</td>
+<td>—</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Pravna → <strong>radniku</strong></td>
+<td><strong>NE</strong></td>
+<td>Razlika do 2 % = <strong>plaća u naravi</strong> (doprinosi + porez
+na dohodak, JOPPD)</td>
+<td><strong>2 %</strong> (ZPDoh čl. 21. st. 3.)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Pravna → <strong>vlasniku/članu</strong> (fizičkoj)</td>
+<td><strong>NE</strong></td>
+<td>Razlika do 2 % = <strong>izuzimanje</strong> → dohodak od kapitala
+<strong>36 %</strong>; bez pisanog ugovora, roka i stvarnog vraćanja
+rizik prekvalifikacije <strong>cijelog iznosa</strong> u izuzimanje</td>
+<td><strong>2 %</strong></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Pravna → nepovezanoj fizičkoj (nije ni radnik ni član)</td>
+<td><strong>DA</strong> (formalno)</td>
+<td>Nema propisane imputacije; oprez kod kreditiranja potrošača kao
+djelatnosti (ZPK/HANFA) — beskamatni krediti bez naknada izvan su
+ZPK-a</td>
+<td>—</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Pravna → pravna, <strong>nepovezane</strong></td>
+<td><strong>DA</strong></td>
+<td>Ništa — potvrđeno mišljenjem PU iz 2011. (v. § Mit 1); beskamatnost
+izričito ugovoriti (ZOO čl. 500. st. 2.)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Pravna → pravna, povezane, <strong>obje tuzemne, obje
+„uredne"</strong> (bez gubitka, oslobođenja, niže stope)</td>
+<td><strong>DA</strong></td>
+<td>Pravila o transfernim cijenama ne primjenjuju se (ZPD čl. 13. st.
+5.) — ali status provjeravati <strong>svake godine</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Pravna → pravna, povezane + <strong>jedna u povlaštenom položaju ili
+nerezident</strong></td>
+<td><strong>NE</strong></td>
+<td>Zajmodavcu se imputira prihod (min 2,65 %), zajmoprimcu se rashod
+priznaje do 2,65 % → korekcije porezne osnovice</td>
+<td><strong>2,65 %</strong> (ili tržišna po TP dokumentaciji, ZPD čl.
+14. st. 4.)</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Obrt / OPG <strong>„dohodaš"</strong> (bilo koja strana)</td>
+<td>kao fizička osoba (redci 1–4)</td>
+<td>Nema imputacije iz poreza na dobit; primljene kamate = poslovni
+primitak, odnosno dohodak od kapitala 12 % privatno</td>
+<td>— (prema vlastitim radnicima vrijedi prag 2 %)</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Obrt / OPG <strong>„dobitaš"</strong> (obveznik poreza na
+dobit)</td>
+<td>kao pravna osoba (redci 5–10)</td>
+<td>Vrijede pravila povezanih osoba i 2 %-tni prag prema
+radnicima/članovima</td>
+<td>2,65 % ako je povezan + uvjet iz čl. 13. st. 5.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dijagram-odluke">Dijagram odluke</h3>
+<pre class="mermaid">flowchart TD
+    START([&quot;Dajem pozajmicu — treba li kamata?&quot;]) --&gt; Q1{&quot;Tko je ZAJMOPRIMAC?&quot;}
+
+    Q1 -- &quot;fizička osoba&quot; --&gt; Q2{&quot;Je li radnik ili vlasnik/član&lt;br/&gt;zajmodavca (pravne osobe)?&quot;}
+    Q2 -- &quot;radnik&quot; --&gt; R5[&quot;Min. 2% godišnje.&lt;br/&gt;Kod niže: razlika do 2% = plaća u naravi&lt;br/&gt;(ZPDoh čl. 21. st. 3.)&quot;]
+    Q2 -- &quot;vlasnik / član&quot; --&gt; R6[&quot;Min. 2% godišnje.&lt;br/&gt;Kod niže: razlika = izuzimanje,&lt;br/&gt;dohodak od kapitala 36%&lt;br/&gt;(ZPDoh čl. 66. i 70.)&quot;]
+    Q2 -- &quot;nije ništa od toga&lt;br/&gt;(ili je zajmodavac fizička osoba)&quot; --&gt; R1[&quot;0% uredno.&lt;br/&gt;Ako se kamata ugovori: primatelju&lt;br/&gt;dohodak od kapitala 12%&quot;]
+
+    Q1 -- &quot;pravna osoba&lt;br/&gt;(ili obrt/OPG dobitaš)&quot; --&gt; Q3{&quot;Jesu li strane POVEZANE?&lt;br/&gt;(uprava, nadzor ili kapital —&lt;br/&gt;ZPD čl. 13. st. 2.)&quot;}
+    Q3 -- &quot;ne&quot; --&gt; R8[&quot;0% uredno.&lt;br/&gt;Mišljenje PU 410-01/11-01/2050.&lt;br/&gt;Beskamatnost izričito ugovoriti&lt;br/&gt;(ZOO čl. 500. st. 2.)&quot;]
+    Q3 -- &quot;da&quot; --&gt; Q4{&quot;Obje tuzemne i obje bez&lt;br/&gt;povlaštenog poreznog položaja?&lt;br/&gt;(ZPD čl. 13. st. 5.)&quot;}
+    Q4 -- &quot;da&quot; --&gt; R9[&quot;0% formalno uredno,&lt;br/&gt;status provjeravati svake godine&quot;]
+    Q4 -- &quot;ne (nerezident, gubitak,&lt;br/&gt;oslobođenje, niža stopa)&quot; --&gt; R10[&quot;Min. 2,65% za 2026.&lt;br/&gt;(NN 150/25) ili tržišna&lt;br/&gt;uz TP dokumentaciju&quot;]</pre>
+<hr />
+<p><a name="mit-1"></a></p>
+<h2 id="4-mit-1-između-dvije-pravne-osobe-kamata-je-obavezna">4. Mit 1:
+„Između dvije pravne osobe kamata je obavezna"</h2>
+<p><strong>Netočno.</strong> Ovu tvrdnju knjigovodstva razbija sama
+Porezna uprava, mišljenjem <strong>KLASA: 410-01/11-01/2050 od
+21.10.2011.</strong> (<a
+href="https://www.rrif.hr/kamate_na_zajmove_izmedu_nepovezanih_osoba_-1619-misljenje/">sažetak
+na RRiF-u</a>): za zajmove <strong>nepovezanim</strong> rezidentima
+pravnim osobama <strong>nije propisana obveza</strong> uvećanja porezne
+osnovice za neobračunatu kamatu — minimalna stopa iz ZPD čl. 14. odnosi
+se <strong>samo na povezane osobe</strong>. Uz dvije ograde iz istog
+mišljenja:</p>
+<ol type="1">
+<li>povezanost se gleda <strong>stvarno</strong> (udjeli, uprava, nadzor
+— ZPD čl. 13. st. 2.), ne po izjavi strana, i</li>
+<li>posao ne smije biti <strong>prividan</strong> (Opći porezni zakon,
+čl. 11. — oporezuje se prema gospodarskoj biti, ne prema formi).</li>
+</ol>
+<p>Odakle zabuna? Vjerojatno iz ZOO čl. 500. st. 2.: u trgovačkim
+ugovorima zajmoprimac kamatu duguje <strong>i kad nije
+ugovorena</strong>. To je istina — ali je to
+<strong>dispozitivna</strong> norma koju strane smiju isključiti.
+Knjigovodstvo iz „duguje se po zakonu ako ništa ne piše" izvede
+„obavezna je", što ne stoji: dovoljno je u ugovoru izričito isključiti
+primjenu čl. 500. st. 2. i utvrditi da je zajam beskamatan.</p>
+<p><a name="mit-2"></a></p>
+<h2
+id="5-mit-2-previše-beskamatnih-pozajmica--poslujete-kao-kreditna-institucija">5.
+Mit 2: „Previše beskamatnih pozajmica → poslujete kao kreditna
+institucija"</h2>
+<p>Ovdje je zrno istine umotano u krivi zakon. Redom:</p>
+<p><strong>Što je stvarno rezervirano za banke.</strong> Zakon o
+kreditnim institucijama (<a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2013_12_159_3328.html">NN
+159/13</a> s izmjenama) za kreditne institucije rezervira
+<strong>bankovne usluge</strong>: <em>primanje depozita ili drugih
+povratnih sredstava od javnosti</em> <strong>i</strong> <em>odobravanje
+kredita iz tih sredstava, za svoj račun</em> (čl. 11. pročišćenog
+teksta). Zabranjeno je bez odobrenja <strong>primati depozite od
+javnosti</strong> — a ne posuđivati <strong>vlastiti</strong> novac.
+Trgovačko društvo koje iz vlastitih sredstava daje zajmove drugim
+društvima <strong>ne obavlja bankovnu uslugu</strong> i ne treba
+odobrenje HNB-a. Argument „poslujete kao kreditna institucija" za
+davatelja zajmova iz vlastitog džepa nema zakonsko uporište.</p>
+<p><strong>Gdje Porezna ipak ima pravu polugu — PDV.</strong> Davanje
+kredita i zajmova je financijska usluga <strong>oslobođena
+PDV-a</strong> (Zakon o PDV-u, <a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2013_06_73_1451.html">NN
+73/13</a>, čl. 40. st. 1. t. b). Za oslobođene isporuke <strong>nema
+odbitka pretporeza</strong> (čl. 58. st. 4.), a obveznik koji radi i
+oporezivo i oslobođeno dijeli pretporez <strong>pro-rata</strong> (čl.
+62.). „Povremena" financijska transakcija u taj izračun ne ulazi (čl.
+62. st. 3.) — ali mišljenje PU <strong>KLASA: 410-01/16-01/188 od
+26.02.2016.</strong> (<a
+href="https://porezna-uprava.gov.hr/Misljenja/Detaljno/2149">porezna-uprava.gov.hr</a>)
+kaže: povremenom se smatra <strong>jednokratna</strong> radnja koju
+obveznik ne namjerava ponavljati; <strong>od drugog zajma
+nadalje</strong> kamate ulaze u pro-rata izračun. Tko dakle učestalo
+daje <strong>kamatonosne</strong> zajmove, faktično obavlja i oslobođenu
+financijsku djelatnost i može izgubiti dio odbitka pretporeza. Kod
+čistih 0 % zajmova naknade (kamate) nema, pa nema ni oslobođenog prometa
+koji bi kvario pro-rata — no upravo učestalost beskamatnog kreditiranja
+poziva na sljedeću točku.</p>
+<p><strong>Što Porezna smije preispitati kod hrpe beskamatnih
+pozajmica.</strong> Ne „morate zaračunati kamatu jer ste banka", nego:
+jesu li poslovi <strong>prividni</strong> (OPZ čl. 11. — npr. skrivena
+isplata dobiti, zaobilaženje oporezivanja izuzimanja) i jesu li strane
+<strong>stvarno nepovezane</strong>. Ako je sve stvarno i nepovezano —
+pravne osnove za imputaciju kamate nema (mišljenje iz § Mit 1). Odvojeno
+od poreza, društvo koje kreditiranje pretvori u djelatnost trebalo bi je
+imati <strong>upisanu u predmet poslovanja</strong> (ZTD čl. 32.–34.) —
+s time da su pravni poslovi sklopljeni izvan upisane djelatnosti
+<strong>valjani</strong> (ZTD čl. 34.); to je uredska, a ne porezna
+posljedica.</p>
+<pre class="mermaid">flowchart TD
+    A([&quot;Društvo daje pozajmice drugim društvima&quot;]) --&gt; B{&quot;Iz vlastitih sredstava?&quot;}
+    B -- &quot;ne — prikuplja povratna&lt;br/&gt;sredstva od javnosti&quot; --&gt; C[&quot;STOP: bankovna usluga,&lt;br/&gt;rezervirana za kreditne institucije&lt;br/&gt;(ZOKI čl. 11.)&quot;]
+    B -- &quot;da&quot; --&gt; D{&quot;Koliko često?&quot;}
+    D -- &quot;jednokratno,&lt;br/&gt;bez namjere ponavljanja&quot; --&gt; E[&quot;Povremena financijska transakcija —&lt;br/&gt;ne ulazi u pro-rata&lt;br/&gt;(ZPDV čl. 62. st. 3.)&quot;]
+    D -- &quot;drugi zajam i dalje&quot; --&gt; F{&quot;Uz kamatu?&quot;}
+    F -- &quot;da&quot; --&gt; G[&quot;Kamata = oslobođeni promet&lt;br/&gt;(ZPDV čl. 40. st. 1. t. b)&lt;br/&gt;→ pro-rata podjela pretporeza&lt;br/&gt;(mišljenje PU 410-01/16-01/188)&quot;]
+    F -- &quot;ne (0%)&quot; --&gt; H[&quot;Nema prometa za pro-rata,&lt;br/&gt;ali očekuj pitanja PU:&lt;br/&gt;prividnost / povezanost&lt;br/&gt;(OPZ čl. 11.)&lt;br/&gt;+ pitanje upisane djelatnosti&lt;br/&gt;(ZTD čl. 32.–34.)&quot;]</pre>
+<p><a name="mit-3"></a></p>
+<h2
+id="6-mit-3-pozajmica-se-mora-vratiti-unutar-iste-poslovne-godine-inače-mora-ići-kamata">6.
+Mit 3: „Pozajmica se mora vratiti unutar iste poslovne godine, inače
+mora ići kamata"</h2>
+<p>Propis s takvim sadržajem <strong>ne postoji</strong> — ni u ZOO-u,
+ni u poreznim zakonima nema roka koji bi b2b pozajmicu vezao uz poslovnu
+godinu. Rok povrata je stvar ugovora (a bez ugovorenog roka zajmoprimac
+vraća tek na zahtjev, uz primjereni rok od najmanje dva mjeseca — ZOO
+čl. 504.). Mit se hrani iz tri stvarna pravila koja se krivo
+generaliziraju:</p>
+<ol type="1">
+<li><strong>Predujam dobiti.</strong> Ako član društva tijekom godine
+primi predujam dobiti veći od stvarno ostvarene dobiti, višak mora
+<strong>vratiti prije podnošenja godišnje prijave</strong> — inače se
+višak oporezuje kao <strong>izuzimanje</strong> (dohodak od kapitala, 36
+%; ZPDoh čl. 66. i 70.). U praksi se višak zna „pretvoriti" u pozajmicu
+— a tada, jer je primatelj fizička osoba-član, vrijedi minimalna kamata
+od <strong>2 %</strong> (redak 6 tablice). To je jedino mjesto gdje
+„kraj godine" stvarno pali obvezu kamate — i tiče se <strong>isplata
+vlasnicima</strong>, ne b2b pozajmica.</li>
+<li><strong>Obračunsko priznavanje prihoda.</strong> Ako kamata
+<strong>jest</strong> ugovorena, prihod od kamata priznaje se
+obračunski, razdoblju na koje se odnosi — pa pozajmica koja prelazi
+godinu znači obračun (i oporezivanje) pripadajuće kamate <strong>u
+svakoj godini trajanja</strong>, bez obzira na to kada se plaća. Kod 0 %
+nepovezanih nema se što obračunati.</li>
+<li><strong>Godišnja stopa za povezane osobe.</strong> Propisana stopa
+(2,65 % za 2026.) objavljuje se za svaku kalendarsku godinu, pa kod
+višegodišnjih zajmova između povezanih osoba stopu treba <strong>pratiti
+godišnje</strong> (ili dokumentirati vlastitu tržišnu stopu po ZPD čl.
+14. st. 4.). Zajam koji prelazi godinu nije zabranjen — samo traži
+ažuriranje obračuna.</li>
+</ol>
+<pre class="mermaid">flowchart LR
+    subgraph G2026[&quot;Poslovna godina N&quot;]
+        A[&quot;Isplata pozajmice&quot;] --&gt; B[&quot;31.12.: obračunaj kamatu za&lt;br/&gt;razdoblje do kraja godine&lt;br/&gt;(ako je ugovorena)&quot;]
+    end
+    subgraph G2027[&quot;Poslovna godina N+1&quot;]
+        B --&gt; C[&quot;Kod povezanih osoba:&lt;br/&gt;provjeri novu propisanu stopu&quot;] --&gt; D[&quot;Povrat + ostatak kamate&quot;]
+    end
+    style G2026 fill:none
+    style G2027 fill:none</pre>
+<h2 id="7-gornje-granice--druga-strana-medalje">7. Gornje granice —
+druga strana medalje</h2>
+<p>Dok minimume nameće samo porezno pravo, <strong>maksimume</strong>
+nameće ZOO i oni su prisilni:</p>
+<ul>
+<li>između osoba od kojih <strong>barem jedna nije trgovac</strong>:
+najviše <strong>zatezna stopa za ostale odnose uvećana za
+polovinu</strong> → trenutno 5,40 % × 1,5 = <strong>8,10 %</strong> (čl.
+26. st. 1.);</li>
+<li><strong>među trgovcima</strong>: najviše <strong>zatezna za
+trgovačke ugovore uvećana za tri četvrtine</strong> → 10,40 % × 1,75 =
+<strong>18,20 %</strong> (čl. 26. st. 2.);</li>
+<li>ugovori li se više — primjenjuje se najviša dopuštena (čl. 26. st.
+4.);</li>
+<li>na dospjele, a neplaćene kamate ne teku zatezne kamate (zabrana
+anatocizma, ZOO čl. 27.), osim od dana podnošenja zahtjeva sudu.</li>
+</ul>
+<h2 id="8-izvori">8. Izvori</h2>
+<h3 id="propisi-narodne-novine">Propisi (Narodne novine)</h3>
+<table>
+<thead>
+<tr>
+<th>Propis</th>
+<th>Temeljni broj NN</th>
+<th>Ključni članci za ovu temu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zakon o obveznim odnosima (ZOO)</td>
+<td><a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2005_03_35_707.html">NN
+35/05</a> (izmjene: 41/08, 125/11, 78/15, 29/18, 126/21, <a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2022_10_114_1711.html">114/22</a>,
+156/22, <a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2023_12_155_2365.html">155/23</a>,
+69/26)</td>
+<td>čl. 26. (najviša ugovorna), čl. 27. (anatocizam), čl. 29. (zatezne),
+čl. 499.–508. (zajam), čl. 500. (kamata samo ako je ugovorena /
+trgovački ugovori) — <a
+href="https://www.zakon.hr/z/75/Zakon-o-obveznim-odnosima">pročišćeni
+tekst</a></td>
+</tr>
+<tr>
+<td>Zakon o porezu na dobit (ZPD)</td>
+<td><a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2004_12_177_3067.html">NN
+177/04</a> (s izmjenama do 151/25)</td>
+<td>čl. 8. (potkapitaliziranost), čl. 13. (povezane osobe; st. 5.
+tuzemni uvjet), čl. 14. (kamate između povezanih; st. 3. propisana
+stopa; st. 4. TP metode) — <a
+href="https://www.zakon.hr/z/99/zakon-o-porezu-na-dobit">pročišćeni
+tekst</a></td>
+</tr>
+<tr>
+<td>Odluka o objavi kamatne stope na zajmove između povezanih osoba za
+2026.</td>
+<td><a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2025_12_150_2236.html">NN
+150/25</a></td>
+<td>stopa <strong>2,65 %</strong>, na snazi od 31.12.2025.</td>
+</tr>
+<tr>
+<td>Zakon o porezu na dohodak (ZPDoh)</td>
+<td><a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2016_12_115_2525.html">NN
+115/16</a> (s izmjenama)</td>
+<td>čl. 21. st. 3. (povoljnija kamata, prag 2 %), čl. 65. (kamate =
+dohodak od kapitala), čl. 66. (izuzimanja), čl. 70. (stope 12 % / 36 %)
+— <a
+href="https://www.zakon.hr/z/85/zakon-o-porezu-na-dohodak">pročišćeni
+tekst</a></td>
+</tr>
+<tr>
+<td>Zakon o PDV-u (ZPDV)</td>
+<td><a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2013_06_73_1451.html">NN
+73/13</a> (s izmjenama)</td>
+<td>čl. 40. st. 1. t. b (oslobođenje zajmova), čl. 58. st. 4. (bez
+odbitka za oslobođene), čl. 62. (pro-rata; st. 3. povremene transakcije)
+— <a
+href="https://www.zakon.hr/z/1455/zakon-o-porezu-na-dodanu-vrijednost">pročišćeni
+tekst</a></td>
+</tr>
+<tr>
+<td>Zakon o kreditnim institucijama (ZOKI)</td>
+<td><a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/2013_12_159_3328.html">NN
+159/13</a> (s izmjenama)</td>
+<td>čl. 11. pročišćenog teksta (bankovne usluge; zabrana primanja
+depozita od javnosti) — <a
+href="https://www.zakon.hr/z/195/Zakon-o-kreditnim-institucijama">pročišćeni
+tekst</a></td>
+</tr>
+<tr>
+<td>Zakon o trgovačkim društvima (ZTD)</td>
+<td><a
+href="https://narodne-novine.nn.hr/clanci/sluzbeni/1993_12_111_2133.html">NN
+111/93</a> (s izmjenama)</td>
+<td>čl. 32.–34. (predmet poslovanja; valjanost poslova izvan
+djelatnosti) — <a
+href="https://www.zakon.hr/z/546/zakon-o-trgovackim-drustvima">pročišćeni
+tekst</a></td>
+</tr>
+<tr>
+<td>Opći porezni zakon (OPZ)</td>
+<td><a
+href="https://www.zakon.hr/z/100/Op%C4%87i-porezni-zakon">pročišćeni
+tekst</a></td>
+<td>čl. 11. (gospodarski pristup, prividni poslovi)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mišljenja-porezne-uprave">Mišljenja Porezne uprave</h3>
+<ul>
+<li><strong>KLASA: 410-01/11-01/2050, 21.10.2011.</strong> — kamate na
+zajmove između <strong>nepovezanih</strong> osoba: nema obveze obračuna
+(<a
+href="https://www.rrif.hr/kamate_na_zajmove_izmedu_nepovezanih_osoba_-1619-misljenje/">RRiF</a>)</li>
+<li><strong>KLASA: 410-01/16-01/188, 26.02.2016.</strong> — povremene
+financijske transakcije i pro-rata: od <strong>drugog zajma</strong>
+kamate ulaze u izračun (<a
+href="https://porezna-uprava.gov.hr/Misljenja/Detaljno/2149">Porezna
+uprava</a>)</li>
+</ul>
+<h3 id="stručni-pregledi-stopa">Stručni pregledi stopa</h3>
+<ul>
+<li><a
+href="https://www.teb.hr/novosti/2025/kamate-prema-poreznim-propisima-u-2026-godini/">TEB
+— Kamate prema poreznim propisima u 2026.</a></li>
+<li><a
+href="https://www.teb.hr/novosti/2026/zatezne-i-ugovorne-kamate-od-172026-do-31122026/">TEB
+— Zatezne i ugovorne kamate od 1.7.2026. do 31.12.2026.</a></li>
+<li><a
+href="https://porezna-uprava.gov.hr/hr/dohodak-od-kapitala-po-osnovi-izuzimanja-imovine-i-koristenja-usluga/4652">Porezna
+uprava — dohodak od kapitala po osnovi izuzimanja</a></li>
+</ul>
+</body></html>
