@@ -14,9 +14,17 @@ import sys
 import zipfile
 from xml.sax.saxutils import escape
 
-OUT_DOCX = os.path.join(os.path.dirname(__file__), 'ugovor-o-zajmu-konvertibilni.docx')
-OUT_JSON = os.path.join(os.path.dirname(__file__), 'ugovor-o-zajmu-konvertibilni.fields.json')
-OUT_HTML = os.path.join(os.path.dirname(__file__), 'ugovor-o-zajmu-konvertibilni.html')
+# `--kamata` gradi inačicu s ugovornom kamatom umjesto beskamatnog čl. 3.
+# (izlazi dobivaju sufiks -kamata; fill-ugovor.py bira predložak prema tome
+# sadrži li ulazni JSON polje `kamatna_stopa`). Stopa se ne nameće zakonom —
+# nepovezanim stranama je 0 % uredno — nego se ugovara u visini propisane
+# stope za povezane osobe (ZPD čl. 14. st. 3.) kao porezno sigurna vrijednost.
+KAMATA = '--kamata' in sys.argv
+SUFFIX = '-kamata' if KAMATA else ''
+
+OUT_DOCX = os.path.join(os.path.dirname(__file__), f'ugovor-o-zajmu-konvertibilni{SUFFIX}.docx')
+OUT_JSON = os.path.join(os.path.dirname(__file__), f'ugovor-o-zajmu-konvertibilni{SUFFIX}.fields.json')
+OUT_HTML = os.path.join(os.path.dirname(__file__), f'ugovor-o-zajmu-konvertibilni{SUFFIX}.html')
 
 # `--mreza` iscrtava rezervirane ćelije mreže vizuala tankim okvirom, radi
 # provjere rasporeda potpisne stranice. U dokumentu koji ide na potpis okvira
@@ -247,16 +255,35 @@ A(p('(3) Danom isplate smatra se dan odobrenja računa Zajmoprimca. Zajmoprimac 
     'stječe pravo vlasništva (članak 499. stavak 2. Zakona o obveznim odnosima).'))
 
 A(h('Članak 3. — Kamata'))
-A(p('(1) Zajam je **beskamatan**. Ugovorne strane izričito isključuju primjenu članka 500. stavka 2. '
-    'Zakona o obveznim odnosima, prema kojemu u trgovačkim ugovorima zajmoprimac duguje kamate iako '
-    'nisu ugovorene, te suglasno utvrđuju da Zajmoprimac po ovom Ugovoru ne duguje nikakvu ugovornu '
-    'kamatu ni naknadu.'))
-A(p('(2) Ugovorne strane izjavljuju da nisu povezane osobe u smislu članka 13. stavka 2. Zakona o '
-    'porezu na dobit te da beskamatnost zajma predstavlja rezultat njihove slobodne poslovne odluke, '
-    'pri čemu je protučinidba Zajmodavcu pravo na konverziju iz članka 6. ovoga Ugovora.'))
+if KAMATA:
+    A(p('(1) Na Glavnicu teče ugovorna kamata po fiksnoj stopi od {kamatna_stopa}% godišnje '
+        '(u daljnjem tekstu: **Kamata**). Stopa je ugovorena u visini kamatne stope na zajmove između '
+        'povezanih osoba propisane na temelju članka 14. stavka 3. Zakona o porezu na dobit '
+        '({kamatna_stopa_izvor}) i ne prelazi najvišu dopuštenu ugovornu kamatnu stopu iz članka 26. '
+        'stavka 2. Zakona o obveznim odnosima.'))
+    A(p('(2) Kamata se obračunava na neotplaćeni iznos Glavnice, od dana isplate Glavnice (članak 2. '
+        'stavak 3.) do dana povrata, odnosno — u slučaju Konverzije iz članka 6. ovoga Ugovora — do '
+        'dana upisa povećanja temeljnog kapitala u sudski registar, proporcionalnom metodom uz '
+        'stvarni broj dana i godinu od 365 dana.'))
+    A(p('(3) Kamata dospijeva i plaća se u novcu istodobno s povratom Glavnice, a u slučaju '
+        'Konverzije u roku od 15 dana od upisa povećanja temeljnog kapitala u sudski registar. '
+        'Tražbina Kamate ne ulazi u iznos koji se konvertira (C iz članka 6. stavka 4.), osim ako '
+        'Ugovorne strane naknadno pisano ne ugovore drukčije.'))
+    A(p('(4) Ugovorne strane izjavljuju da nisu povezane osobe u smislu članka 13. stavka 2. Zakona o '
+        'porezu na dobit; Kamata u visini stope propisane za povezane osobe ugovorena je kao mjera '
+        'opreza, njihovom slobodnom poslovnom odlukom.'))
+else:
+    A(p('(1) Zajam je **beskamatan**. Ugovorne strane izričito isključuju primjenu članka 500. stavka 2. '
+        'Zakona o obveznim odnosima, prema kojemu u trgovačkim ugovorima zajmoprimac duguje kamate iako '
+        'nisu ugovorene, te suglasno utvrđuju da Zajmoprimac po ovom Ugovoru ne duguje nikakvu ugovornu '
+        'kamatu ni naknadu.'))
+    A(p('(2) Ugovorne strane izjavljuju da nisu povezane osobe u smislu članka 13. stavka 2. Zakona o '
+        'porezu na dobit te da beskamatnost zajma predstavlja rezultat njihove slobodne poslovne odluke, '
+        'pri čemu je protučinidba Zajmodavcu pravo na konverziju iz članka 6. ovoga Ugovora.'))
 
 A(h('Članak 4. — Rok i način vraćanja'))
-A(p('(1) Zajmoprimac se obvezuje Glavnicu vratiti jednokratno, najkasnije do {datum_dospijeca} '
+A(p('(1) Zajmoprimac se obvezuje Glavnicu' + (', zajedno s Kamatom iz članka 3.,' if KAMATA else '')
+    + ' vratiti jednokratno, najkasnije do {datum_dospijeca} '
     '(u daljnjem tekstu: **Dan dospijeća**), uplatom na račun Zajmodavca IBAN: {signer1_iban}.'))
 A(p('(2) Zajmoprimac ima pravo Glavnicu vratiti i prije Dana dospijeća, u cijelosti ili djelomično, '
     'bez ikakve naknade ili obveze naknade štete, uz pisanu obavijest Zajmodavcu najmanje '
@@ -265,7 +292,8 @@ A(p('(2) Zajmoprimac ima pravo Glavnicu vratiti i prije Dana dospijeća, u cijel
 A(p('(3) Obavijest iz stavka 2. ovoga članka Zajmodavcu daje priliku da prije povrata iskoristi pravo '
     'na konverziju iz članka 6. ovoga Ugovora. Ako Zajmodavac u roku iz stavka 2. ne dostavi Izjavu o '
     'konverziji, Zajmoprimac Glavnicu vraća, a pravo na konverziju u vraćenom dijelu prestaje.'))
-A(p('(4) Vraćanjem Glavnice u cijelosti prestaju sve obveze Zajmoprimca i Člana iz ovoga Ugovora, '
+A(p('(4) Vraćanjem Glavnice u cijelosti' + (' i plaćanjem Kamate' if KAMATA else '')
+    + ' prestaju sve obveze Zajmoprimca i Člana iz ovoga Ugovora, '
     'osim obveze čuvanja povjerljivosti.'))
 
 A(h('Članak 5. — Zakašnjenje'))
@@ -610,13 +638,23 @@ FIELDS = {
     'broj_primjeraka_slovima': ['Broj primjeraka slovima', 'tri'],
 }
 
+if KAMATA:
+    FIELDS['kamatna_stopa'] = [
+        'Ugovorna kamatna stopa, % godišnje (hrvatski zapis, npr. 2,65)', '2,65']
+    FIELDS['kamatna_stopa_izvor'] = [
+        'Izvor propisane stope za povezane osobe (odluka ministra financija)',
+        'za 2026. objavljena u Narodnim novinama 150/25']
+
 with open(OUT_JSON, 'w', encoding='utf8') as f:
     json.dump({
-        'name': 'Ugovor o zajmu s pravom konverzije u poslovni udio',
-        'description': 'B2B beskamatni zajam između dva hrvatska d.o.o. s opcijom zajmodavca da tražbinu '
+        'name': 'Ugovor o zajmu s pravom konverzije u poslovni udio'
+                + (' (s ugovornom kamatom)' if KAMATA else ''),
+        'description': ('B2B zajam uz ugovornu kamatu u visini propisane stope za povezane osobe'
+                        if KAMATA else 'B2B beskamatni zajam') +
+                       ' između dva hrvatska d.o.o. s opcijom zajmodavca da tražbinu '
                        'konvertira u poslovni udio po unaprijed ugovorenoj pre-money vrijednosti.',
         'category': 'Poslovni ugovori',
-        'version': '1.0',
+        'version': '2.0' if KAMATA else '1.0',
         'placeholder_syntax': '{ime_polja}',
         'signers': ['Zajmodavac (firma B)', 'Zajmoprimac (firma A)', 'Član firme A'],
         'fields': {k: {'opis': v[0], 'primjer': v[1]} for k, v in FIELDS.items()},

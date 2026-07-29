@@ -1,0 +1,174 @@
+{
+  "name": "Ugovor o zajmu s pravom konverzije u poslovni udio (s ugovornom kamatom)",
+  "description": "B2B zajam uz ugovornu kamatu u visini propisane stope za povezane osobe između dva hrvatska d.o.o. s opcijom zajmodavca da tražbinu konvertira u poslovni udio po unaprijed ugovorenoj pre-money vrijednosti.",
+  "category": "Poslovni ugovori",
+  "version": "2.0",
+  "placeholder_syntax": "{ime_polja}",
+  "signers": [
+    "Zajmodavac (firma B)",
+    "Zajmoprimac (firma A)",
+    "Član firme A"
+  ],
+  "fields": {
+    "mjesto_sklapanja": {
+      "opis": "Mjesto sklapanja ugovora",
+      "primjer": "Zagreb"
+    },
+    "datum_sklapanja": {
+      "opis": "Datum sklapanja",
+      "primjer": "27. srpnja 2026."
+    },
+    "signer1_organization": {
+      "opis": "Zajmodavac — tvrtka",
+      "primjer": "FIRMA B d.o.o."
+    },
+    "signer1_organization_oib": {
+      "opis": "Zajmodavac — OIB",
+      "primjer": "12345678901"
+    },
+    "signer1_address": {
+      "opis": "Zajmodavac — sjedište (u lokativu: „sa sjedištem u …\")",
+      "primjer": "Zagrebu, Ilica 1"
+    },
+    "signer1_mbs": {
+      "opis": "Zajmodavac — MBS iz sudskog registra",
+      "primjer": "080123456"
+    },
+    "signer1_full_name": {
+      "opis": "Zajmodavac — ime zakonskog zastupnika",
+      "primjer": "Ivan Ivić"
+    },
+    "signer1_email": {
+      "opis": "Zajmodavac — e-mail za obavijesti",
+      "primjer": "ivan@firmab.hr"
+    },
+    "signer1_iban": {
+      "opis": "Zajmodavac — IBAN za povrat",
+      "primjer": "HR1210010051863000160"
+    },
+    "signer2_organization": {
+      "opis": "Zajmoprimac — tvrtka",
+      "primjer": "FIRMA A d.o.o."
+    },
+    "signer2_organization_oib": {
+      "opis": "Zajmoprimac — OIB",
+      "primjer": "10987654321"
+    },
+    "signer2_address": {
+      "opis": "Zajmoprimac — sjedište (u lokativu)",
+      "primjer": "Zagrebu, Savska 32"
+    },
+    "signer2_mbs": {
+      "opis": "Zajmoprimac — MBS iz sudskog registra",
+      "primjer": "080654321"
+    },
+    "signer2_full_name": {
+      "opis": "Zajmoprimac — ime zakonskog zastupnika",
+      "primjer": "Matija Stepanić"
+    },
+    "signer2_email": {
+      "opis": "Zajmoprimac — e-mail za obavijesti",
+      "primjer": "matija@firmaa.hr"
+    },
+    "signer2_iban": {
+      "opis": "Zajmoprimac — IBAN za isplatu zajma",
+      "primjer": "HR1723600001101234565"
+    },
+    "signer2_temeljni_kapital": {
+      "opis": "Temeljni kapital Zajmoprimca u EUR (ključno za izračun udjela)",
+      "primjer": "2.500,00"
+    },
+    "signer3_full_name": {
+      "opis": "Član Zajmoprimca — ime i prezime",
+      "primjer": "Matija Stepanić"
+    },
+    "signer3_oib": {
+      "opis": "Član — OIB",
+      "primjer": "11223344556"
+    },
+    "signer3_address": {
+      "opis": "Član — adresa (u genitivu: „iz …\")",
+      "primjer": "Zagreba, Savska 32"
+    },
+    "signer3_email": {
+      "opis": "Član — e-mail",
+      "primjer": "matija@firmaa.hr"
+    },
+    "signer3_udio_postotak": {
+      "opis": "Član — postotak udjela u temeljnom kapitalu",
+      "primjer": "100"
+    },
+    "iznos_zajma": {
+      "opis": "Iznos zajma u EUR",
+      "primjer": "7.000,00"
+    },
+    "iznos_zajma_slovima": {
+      "opis": "Iznos zajma slovima",
+      "primjer": "sedamtisućaeura"
+    },
+    "svrha_zajma": {
+      "opis": "Svrha zajma",
+      "primjer": "financiranje tekućeg poslovanja i obrtnih sredstava"
+    },
+    "rok_isplate_dana": {
+      "opis": "Rok isplate zajma u danima od sklapanja",
+      "primjer": "5"
+    },
+    "datum_dospijeca": {
+      "opis": "Dan dospijeća povrata",
+      "primjer": "31. prosinca 2026."
+    },
+    "valuacija_pre_money": {
+      "opis": "Ugovorena pre-money vrijednost društva u EUR",
+      "primjer": "20.000.000,00"
+    },
+    "valuacija_pre_money_slovima": {
+      "opis": "Vrijednost slovima",
+      "primjer": "dvadesetmilijunaeura"
+    },
+    "rok_opcije_datum": {
+      "opis": "Krajnji datum za korištenje prava na konverziju",
+      "primjer": "31. prosinca 2026."
+    },
+    "rok_provedbe_dana": {
+      "opis": "Rok za provedbu konverzije u danima od Izjave",
+      "primjer": "45"
+    },
+    "prag_kvalificirane_runde": {
+      "opis": "Prag ulaganja koji aktivira obavijest, u EUR",
+      "primjer": "500.000,00"
+    },
+    "rok_obavijesti_dana": {
+      "opis": "Rok za obavijest / reakciju u danima",
+      "primjer": "15"
+    },
+    "ugovorna_kazna_iznos": {
+      "opis": "Ugovorna kazna u EUR",
+      "primjer": "14.000,00"
+    },
+    "ugovorna_kazna_iznos_slovima": {
+      "opis": "Ugovorna kazna slovima",
+      "primjer": "četrnaesttisućaeura"
+    },
+    "nadlezni_sud_grad": {
+      "opis": "Grad stvarno nadležnog suda",
+      "primjer": "Zagrebu"
+    },
+    "broj_primjeraka": {
+      "opis": "Broj papirnatih primjeraka",
+      "primjer": "3"
+    },
+    "broj_primjeraka_slovima": {
+      "opis": "Broj primjeraka slovima",
+      "primjer": "tri"
+    },
+    "kamatna_stopa": {
+      "opis": "Ugovorna kamatna stopa, % godišnje (hrvatski zapis, npr. 2,65)",
+      "primjer": "2,65"
+    },
+    "kamatna_stopa_izvor": {
+      "opis": "Izvor propisane stope za povezane osobe (odluka ministra financija)",
+      "primjer": "za 2026. objavljena u Narodnim novinama 150/25"
+    }
+  }
+}

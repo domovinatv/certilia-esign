@@ -20,9 +20,6 @@ import sys
 import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-TPL_DOCX = os.path.join(HERE, 'ugovor-o-zajmu-konvertibilni.docx')
-TPL_HTML = os.path.join(HERE, 'ugovor-o-zajmu-konvertibilni.html')
-FIELDS = os.path.join(HERE, 'ugovor-o-zajmu-konvertibilni.fields.json')
 CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 
 
@@ -53,7 +50,17 @@ def main():
         sys.exit(__doc__)
     data_path = os.path.abspath(sys.argv[1])
     data = json.load(open(data_path, encoding='utf8'))
-    schema = json.load(open(FIELDS, encoding='utf8'))['fields']
+
+    # Inačica predloška: JSON s poljem `kamatna_stopa` popunjava predložak s
+    # ugovornom kamatom (build-*.py --kamata), inače beskamatni.
+    variant = '-kamata' if 'kamatna_stopa' in data else ''
+    tpl_docx = os.path.join(HERE, f'ugovor-o-zajmu-konvertibilni{variant}.docx')
+    tpl_html = os.path.join(HERE, f'ugovor-o-zajmu-konvertibilni{variant}.html')
+    fields = os.path.join(HERE, f'ugovor-o-zajmu-konvertibilni{variant}.fields.json')
+    if variant and not os.path.exists(tpl_docx):
+        sys.exit(f'nema predloška {tpl_docx} — pokreni build-ugovor-o-zajmu-konvertibilni.py --kamata')
+    print(f'Predložak: {os.path.basename(tpl_docx)}')
+    schema = json.load(open(fields, encoding='utf8'))['fields']
 
     unknown = sorted(set(data) - set(schema))
     if unknown:
@@ -63,9 +70,9 @@ def main():
     out_docx, out_html, out_pdf = base + '.docx', base + '.html', base + '.pdf'
 
     # HTML
-    html, missing = substitute(open(TPL_HTML, encoding='utf8').read(), data)
+    html, missing = substitute(open(tpl_html, encoding='utf8').read(), data)
     # DOCX
-    zin = zipfile.ZipFile(TPL_DOCX)
+    zin = zipfile.ZipFile(tpl_docx)
     with zipfile.ZipFile(out_docx, 'w', zipfile.ZIP_DEFLATED) as zo:
         for name in zin.namelist():
             blob = zin.read(name)
@@ -104,6 +111,11 @@ def main():
         K = num(data['signer2_temeljni_kapital'])
     except (KeyError, ValueError):
         return
+    if 'kamatna_stopa' in data:
+        stopa = num(data['kamatna_stopa'])
+        print(f'\nKamata (čl. 3.): {data["kamatna_stopa"]} % godišnje '
+              f'→ {eur(C * stopa / 100)} EUR na punu godinu '
+              f'({eur(C * stopa / 100 / 365)} EUR/dan, godina od 365 dana)')
     P = C / V
     N = max(1, round(K * P / (1 - P)))
     stvarni = N / (K + N)
